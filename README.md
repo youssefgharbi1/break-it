@@ -1,12 +1,22 @@
-# React + Vite
+# 🏡 BREAK-IT 
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A simple and efficient way to **divide and assign household tasks** among family members. This project helps families manage daily chores, track completed assignments, and improve productivity.  
 
-Currently, two official plugins are available:
+## 🚀 Features  
+✅ Task creation and assignment to family members  
+✅ Task tracking with completion status  
+✅ User authentication and role-based task management  
+✅ Notifications and reminders for pending tasks  
+✅ Responsive design for web and mobile  
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🛠 Tech Stack  
+- **Front-end:** React  
+- **Back-end:** PHP & MySQL  
+- **Methodology:** Agile (Scrum)  
 
-## Expanding the ESLint configuration
+## 📦 Installation  
 
-If you are developing a production application, we recommend using TypeScript and enable type-aware lint rules. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### 1️⃣ Clone the repository  
+```sh
+git clone https://github.com/youssefgharbi1/break-it.git
+cd break-it
