@@ -1,0 +1,32 @@
+.inputField {
+    margin-bottom: 1rem;
+  }
+  
+  .inputLabel {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+  }
+  
+  .input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+  }
+  
+  .inputError {
+    border-color: #ff4d4f;
+  }
+  
+  .errorMessage {
+    color: #ff4d4f;
+    margin-top: 0.25rem;
+    font-size: 0.875rem;
+  }
+  
+  .required {
+    color: #ff4d4f;
+    margin-left: 4px;
+  }

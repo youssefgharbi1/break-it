@@ -1,0 +1,51 @@
+.header {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding: 0 1rem;
+  }
+  
+  .logoContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .logo {
+    height: 40px;
+    width: 40px;
+    object-fit: contain;
+  }
+  
+  .appName {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0;
+    color: var(--color-primary-dark); /* #d46b89 */
+    background: linear-gradient(to right, #E984A2, #B9CC95);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  
+  .tagline {
+    color: var(--color-text-light); /* #7a6b5f */
+    font-size: 1rem;
+    margin: 0;
+    font-weight: 400;
+  }
+  
+  /* Animation */
+  .logo {
+    animation: gentleBounce 1s infinite alternate;
+  }
+  
+  @keyframes gentleBounce {
+    from {
+      transform: translateY(0px);
+    }
+    to {
+      transform: translateY(-5px);
+    }
+  } 
