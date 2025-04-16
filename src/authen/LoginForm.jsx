@@ -85,6 +85,7 @@ const LoginForm = () => {
                     <a href="#" className={styles.forgotPassword}>
                         Forgot password?
                     </a>
+                    //add a link for sign up
                     </div>
 
                     <Button

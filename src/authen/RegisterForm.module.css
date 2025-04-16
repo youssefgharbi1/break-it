@@ -1,0 +1,64 @@
+.registerForm {
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 2rem;
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+  
+  .title {
+    text-align: center;
+    color: #4a3a2f;
+    margin-bottom: 2rem;
+    font-size: 1.8rem;
+  }
+  
+  .errorAlert {
+    color: #e74c3c;
+    background-color: #fde8e8;
+    padding: 0.8rem;
+    border-radius: 6px;
+    margin-bottom: 1.5rem;
+    border-left: 4px solid #e74c3c;
+  }
+  
+  .nameFields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .submitButton {
+    width: 100%;
+    margin-top: 1.5rem;
+    padding: 1rem;
+  }
+  
+  .loginLink {
+    text-align: center;
+    margin-top: 1.5rem;
+    color: #7a6b5f;
+  }
+  
+  .loginLink a {
+    color: #E984A2;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  
+  .loginLink a:hover {
+    text-decoration: underline;
+  }
+  
+  @media (max-width: 600px) {
+    .nameFields {
+      grid-template-columns: 1fr;
+    }
+    
+    .registerForm {
+      padding: 1.5rem;
+      margin: 0 1rem;
+    }
+  }
