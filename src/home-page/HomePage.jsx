@@ -1,5 +1,8 @@
 import { Link } from 'react-router-dom';
 import styles from './HomePage.module.css';
+import flower from '../../public/flower.svg';
+import eye from '../../public/eye.svg';
+import spark from '../../public/sparkles.svg';
 
 const HomePage = () => {
   return (
@@ -8,10 +11,10 @@ const HomePage = () => {
       <section className={styles.hero}>
         <div className={styles.heroContent}>
           <h1 className={styles.headline}>
-            Organize your life with <span className={styles.highlight}>Bloom</span>
+            Organize family chores with <span className={styles.highlight}>BREAK-IT</span>
           </h1>
           <p className={styles.subheadline}>
-            A beautiful productivity app to manage tasks, habits, and goals
+            A beautiful productivity app Designed to suit tasks management, progress tracking and improving your family's productivity.
           </p>
           <div className={styles.ctaButtons}>
             <Link to="/register" className={styles.primaryButton}>
@@ -30,25 +33,25 @@ const HomePage = () => {
 
       {/* Features Section */}
       <section className={styles.features}>
-        <h2 className={styles.sectionTitle}>Why Choose Bloom</h2>
+        <h2 className={styles.sectionTitle}>Why Choose Break-it</h2>
         <div className={styles.featureGrid}>
           <div className={styles.featureCard}>
             <div className={styles.featureIcon} style={{ backgroundColor: '#F8D49B' }}>
-              ✨
+              <img src={spark} className={styles.featureIconImg} />
             </div>
             <h3>Simple & Intuitive</h3>
             <p>Designed for effortless task management</p>
           </div>
           <div className={styles.featureCard}>
             <div className={styles.featureIcon} style={{ backgroundColor: '#B9CC95' }}>
-              🔄
+              <img src={eye} className={styles.featureIconImg} />
             </div>
             <h3>Habit Tracking</h3>
             <p>Build positive routines with streaks</p>
           </div>
           <div className={styles.featureCard}>
             <div className={styles.featureIcon} style={{ backgroundColor: '#E984A2' }}>
-              🌸
+              <img src={flower} className={styles.featureIconImg} />
             </div>
             <h3>Calming Design</h3>
             <p>Enjoy our soothing color palette</p>
@@ -59,9 +62,10 @@ const HomePage = () => {
       {/* Testimonial Section */}
       <section className={styles.testimonial}>
         <blockquote>
-          "Bloom transformed how I organize my day. It's beautiful and actually makes me want to use it!"
+          "Break-it transformed how I organize my day for my family. It's beautiful and actually makes my kids
+           enjoy "boring" and tedious tasks!"
         </blockquote>
-        <div className={styles.author}>- Sarah, Teacher</div>
+        <div className={styles.author}>- Sarah, mother and teacher</div>
       </section>
     </div>
   );

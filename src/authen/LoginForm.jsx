@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import InputField from './InputField';
-import Button from './Button';
+import InputField from '../InputField';
+import Button from '../Button';
 import styles from './LoginForm.module.css';
 import AppHeader from '../AppHeader';
+import { Link, useNavigate } from 'react-router-dom';
 
 const LoginForm = () => {
   const [formData, setFormData] = useState({
@@ -12,6 +13,7 @@ const LoginForm = () => {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [loginSuccess, setLoginSuccess] = useState(false);
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -38,9 +40,41 @@ const LoginForm = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log('Form submitted with:', formData);
-    // Add your submission logic here
+    try {
+      fetch('http://localhost/break-it-api/public/login.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json', // Required for JSON data
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password
+        })
+      }).then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (data.success) {
+          alert("login successful!");
+          // Redirect to login or dashboard
+          navigate("/dashboard"); 
+        } else {
+          // Show validation errors
+          alert(data.message || "login failed"); 
+          console.error(data.errors); // Log detailed errors
+        }
+      });
+    } catch (error) {
+      setErrors({ submit: error.message });
+    } finally {
+      setLoading(false);
+    }
   };
-  // Temporary simplified test
+
 
 
   return (
@@ -82,10 +116,16 @@ const LoginForm = () => {
                         error={errors.password}
                         required
                     />
-                    <a href="#" className={styles.forgotPassword}>
-                        Forgot password?
-                    </a>
-                    //add a link for sign up
+                    <div className={styles.linkContainer}>
+                      <a href="/register" className={styles.forgotPassword}>
+                          sign up
+                      </a>
+                      <a href="#" className={styles.forgotPassword}>
+                          Forgot password?
+                      </a>
+                    </div>
+                    
+                    
                     </div>
 
                     <Button

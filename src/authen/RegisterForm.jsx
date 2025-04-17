@@ -1,14 +1,17 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import InputField from './InputField';
-import Button from './Button';
+import InputField from '../InputField';
+import Button from '../Button';
 import styles from './RegisterForm.module.css';
+import RadioGroup from '../RadioGroup';
 
 const RegisterForm = () => {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     age: 0,
+    role:'',
+    gender:'',
     email: '',
     phone: '',
     password: '',
@@ -28,6 +31,7 @@ const RegisterForm = () => {
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
   };
 
+  console.log(formData)
   const validateForm = () => {
     const newErrors = {};
     const phoneRegex = /^[+]?[(]?[0-9]{1,4}[)]?[-\s.]?[0-9]{1,3}[-\s.]?[0-9]{3,6}$/im;
@@ -52,6 +56,8 @@ const RegisterForm = () => {
     if (formData.password !== formData.repeatPassword) {
       newErrors.repeatPassword = 'Passwords do not match';
     }
+    if (!formData.gender) newErrors.gender = 'gender is required';
+    if (!formData.role) newErrors.role = 'role is required';
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -63,18 +69,39 @@ const RegisterForm = () => {
 
     setLoading(true);
     try {
-      // Replace with actual API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      console.log('Registration data:', {
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        age : formData.age,
-        email: formData.email,
-        phone: formData.phone,
-        password: formData.password
+      fetch('http://localhost/break-it-api/public/register.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json', // Required for JSON data
+        },
+        body: JSON.stringify({
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+          email: formData.email,
+          password: formData.password,
+          age : formData.age,
+          phone: formData.phone,
+          gender : formData.gender,
+          role : formData.role
 
+        })
+      }).then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (data.success) {
+          alert("Registration successful!");
+          // Redirect to login or dashboard
+          navigate("/login"); 
+        } else {
+          // Show validation errors
+          alert(data.message || "Registration failed"); 
+          console.error(data.errors); // Log detailed errors
+        }
       });
-      navigate('/verify-email'); // Redirect after successful registration
     } catch (error) {
       setErrors({ submit: error.message });
     } finally {
@@ -83,96 +110,122 @@ const RegisterForm = () => {
   };
 
   return (
-    <div className={styles.registerForm}>
-      <h2 className={styles.title}>Create Your Account</h2>
-      
-      {errors.submit && (
-        <div className={styles.errorAlert}>{errors.submit}</div>
-      )}
-
-      <form onSubmit={handleSubmit} noValidate>
-        <div className={styles.nameFields}>
-          <InputField
-            name="firstName"
-            label="First Name"
-            value={formData.firstName}
-            onChange={handleChange}
-            error={errors.firstName}
-            required
-            autoFocus
-          />
-          <InputField
-            name="lastName"
-            label="Last Name"
-            value={formData.lastName}
-            onChange={handleChange}
-            error={errors.lastName}
-            required
-          />
-        </div>
-
-        <InputField
-            name="age"
-            label="Age"
-            value={formData.age}
-            onChange={handleChange}
-            error={errors.age}
-            required
-          />
+    <div className={styles.registerContainer}>
+      <div className={styles.registerForm}>
+        <h2 className={styles.title}>Create Your Account</h2>
         
-        <InputField
-          type="email"
-          name="email"
-          label="Email Address"
-          value={formData.email}
-          onChange={handleChange}
-          error={errors.email}
-          required
-        />
+        {errors.submit && (
+          <div className={styles.errorAlert}>{errors.submit}</div>
+        )}
 
-        <InputField
-          type="tel"
-          name="phone"
-          label="Phone Number"
-          value={formData.phone}
-          onChange={handleChange}
-          error={errors.phone}
-          placeholder="+1 (123) 456-7890"
-          required
-        />
+        <form onSubmit={handleSubmit} noValidate>
+          <div className={styles.nameFields}>
+            <RadioGroup 
+              name="role"
+              label="Role"
+              options={[
+                { value: 'parent', label: 'Parent' },
+                { value: 'child', label: 'Child' },
+              ]}
+              value={formData.role}
+              onChange={(e) => setFormData({...formData, role: e.target.value})}
+              error={errors.role}
+            />
+            <br />
+            <InputField
+              name="firstName"
+              label="First Name"
+              value={formData.firstName}
+              onChange={handleChange}
+              error={errors.firstName}
+              required
+              autoFocus
+            />
+            <InputField
+              name="lastName"
+              label="Last Name"
+              value={formData.lastName}
+              onChange={handleChange}
+              error={errors.lastName}
+              required
+            />
+          </div>
 
-        <InputField
-          type="password"
-          name="password"
-          label="Password"
-          value={formData.password}
-          onChange={handleChange}
-          error={errors.password}
-          required
-        />
+          <InputField
+              name="age"
+              label="Age"
+              value={formData.age}
+              onChange={handleChange}
+              error={errors.age}
+              required
+            />
+          <RadioGroup 
+          name="gender"
+          label="Gender"
+          options={[
+            { value: 'f', label: 'Female' },
+            { value: 'm', label: 'Male' },
+            { value: 'n', label: 'Prefer not to say' }
+          ]}
+          value={formData.gender}
+          onChange={(e) => setFormData({...formData, gender: e.target.value})}
+          error={errors.gender}
+          />
 
-        <InputField
-          type="password"
-          name="repeatPassword"
-          label="Repeat Password"
-          value={formData.repeatPassword}
-          onChange={handleChange}
-          error={errors.repeatPassword}
-          required
-        />
+          <InputField
+            type="email"
+            name="email"
+            label="Email Address"
+            value={formData.email}
+            onChange={handleChange}
+            error={errors.email}
+            required
+          />
 
-        <Button
-          type="submit"
-          variant="primary"
-          loading={loading}
-          className={styles.submitButton}
-        >
-          Create Account
-        </Button>
-      </form>
+          <InputField
+            type="tel"
+            name="phone"
+            label="Phone Number"
+            value={formData.phone}
+            onChange={handleChange}
+            error={errors.phone}
+            placeholder="+1 (123) 456-7890"
+            required
+          />
 
-      <div className={styles.loginLink}>
-        Already have an account? <Link to="/login">Sign in</Link>
+          <InputField
+            type="password"
+            name="password"
+            label="Password"
+            value={formData.password}
+            onChange={handleChange}
+            error={errors.password}
+            required
+          />
+
+          <InputField
+            type="password"
+            name="repeatPassword"
+            label="Repeat Password"
+            value={formData.repeatPassword}
+            onChange={handleChange}
+            error={errors.repeatPassword}
+            required
+          />
+
+          <Button
+            type="submit"
+            variant="primary"
+            loading={loading}
+            className={styles.submitButton}
+          >
+            Create Account
+          </Button>
+        </form>
+
+        <div className={styles.loginLink}>
+          Already have an account? <Link to="/login">Sign in</Link>
+        </div>
       </div>
     </div>
   );
