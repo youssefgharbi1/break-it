@@ -76,11 +76,16 @@ $database = new App\Conf\Database($dbConfig);
 $taskRepository = new App\model\Repository\TaskRepository($database);
 $userRepository = new App\model\Repository\UserRepository($database);
 $roomRepository = new App\model\Repository\RoomRepository($database);
+$roomMembersRepository = new App\Model\Repository\RoomMembersRepository($database);
+$messageRepository = new App\Model\Repository\MessageRepository($database);
+
 
 // Initialize services
 $taskService = new App\model\Service\TaskService($taskRepository);
 $userService = new App\model\Service\UserService($userRepository);
-$roomService = new App\model\Service\RoomService($roomRepository);
+$roomService = new App\model\Service\RoomService($roomRepository, $roomMembersRepository);
+$roomMembersService = new App\model\Service\RoomMembersService($roomMembersRepository, $userRepository);
+$messageService = new App\Model\Service\MessageService($messageRepository, $roomMembersService);
 
 // Helper function to send JSON responses
 function jsonResponse($data, $statusCode = 200) {

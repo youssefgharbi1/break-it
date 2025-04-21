@@ -293,5 +293,27 @@ class Task
         $this->status = self::STATUS_REJECTED;
         $this->completionNotes = $reason;
     }
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'title' => $this->title,
+            'description' => $this->description,
+            'status' => $this->status,
+            'category' => $this->category,
+            'priority' => $this->priority,
+            'dateCreated' => $this->dateCreated->format('Y-m-d H:i:s'),
+            'startTime' => $this->startTime ? $this->startTime->format('Y-m-d H:i:s') : null,
+            'dueTime' => $this->dueTime ? $this->dueTime->format('Y-m-d H:i:s') : null,
+            'estimatedDuration' => $this->estimatedDuration,
+            'createdBy' => $this->createdBy,
+            'assignedTo' => $this->assignedTo,
+            'familyId' => $this->familyId,
+            'recurringPattern' => $this->recurringPattern,
+            'completionNotes' => $this->completionNotes,
+            'pointsValue' => $this->pointsValue,
+            'isApproved' => $this->isApproved,
+        ];
+    }
 }
 ?>

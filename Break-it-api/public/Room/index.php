@@ -1,10 +1,18 @@
 <?php
 require_once __DIR__.'/../../bootstrap.php';
 
+header("Access-Control-Allow-Origin: http://localhost:5173");
 header('Content-Type: application/json');
+header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, PATCH, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type');
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(204);
+    exit;
+}
 
 try {
     $method = $_SERVER['REQUEST_METHOD'];
+    echo $method . '<br>';
     $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
     $roomId = isset($_GET['id']) ? (int)$_GET['id'] : null;
 
@@ -12,7 +20,8 @@ try {
         case 'GET':
             if ($roomId) {
                 // GET /api/rooms?id=123
-                $room = $roomService->getRoomById($roomId);
+                $room = $roomService->getRoomById($roomId)->toArray();
+                $room['roomMembers'] = $roomMembersService->getRoomMembers($roomId);
                 echo json_encode(['data' => $room]);
             } else {
                 // GET /api/rooms
@@ -23,6 +32,7 @@ try {
 
         case 'POST':
             // POST /api/rooms
+            echo 'test';
             $input = json_decode(file_get_contents('php://input'), true);
             $room = $roomService->createRoom(
                 $input['name'],
@@ -41,7 +51,7 @@ try {
                 $roomId,
                 $input['name'],
                 $input['description'],
-                $input['familyId']
+                $input['family_id']
             );
             echo json_encode(['data' => $room]);
             break;

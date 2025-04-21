@@ -3,14 +3,18 @@ namespace App\model\Service;
 
 use App\Model\Room;
 use App\model\Repository\RoomRepository;
+use App\model\Repository\RoomMembersRepository;
 use Exception;
+use RuntimeException;
 
 class RoomService
 {
     private $roomRepository;
+    private $roomMembersRepo;
 
-    public function __construct(RoomRepository $roomRepository)
+    public function __construct(RoomRepository $roomRepository, RoomMembersRepository $roomMembersRepo)
     {
+        $this->roomMembersRepo = $roomMembersRepo;
         $this->roomRepository = $roomRepository;
     }
 
@@ -22,7 +26,7 @@ class RoomService
         string $description,
         int $familyId,
         ?string $dateCreated = null
-    ): Room {
+    ): array {
         // Validate input
         $this->validateRoomData($name, $description, $familyId);
 
@@ -34,12 +38,10 @@ class RoomService
             $familyId,
             $dateCreated ?? date('Y-m-d H:i:s')
         );
-
-        // Generate and set unique code
-        $room->setCode($this->generateUniqueRoomCode($room));
-
-        // Save to database
-        return $this->roomRepository->create($room);
+        $room->setCode($this->roomRepository->generateUniqueCode());
+        $room = $this->roomRepository->create($room);
+        $this->roomMembersRepo->addFirstMember($room->getId(), $familyId);
+        return $room->toArray();
     }
 
     /**
@@ -50,22 +52,26 @@ class RoomService
         string $name,
         string $description,
         int $familyId
-    ): Room {
+    ): bool {
         // Validate input
         $this->validateRoomData($name, $description, $familyId);
-
+    
         // Get existing room
         $room = $this->getRoomById($roomId);
-
+        if (!$room) {
+            throw new RuntimeException("Room not found", 404);
+        }
+    
         // Update room properties
         $room->setName($name);
         $room->setDescription($description);
         $room->setFamilyId($familyId);
-
+    
         // Save changes
-        $this->roomRepository->update($room);
-
-        return $room;
+        if (!$this->roomRepository->update($room)) {
+            throw new RuntimeException("Failed to update room");
+        }
+        return true;
     }
 
     /**
@@ -74,11 +80,7 @@ class RoomService
     public function getRoomById(int $roomId): Room
     {
         $room = $this->roomRepository->findById($roomId);
-
-        if (!$room) {
-            throw new Exception("Room not found with ID: $roomId");
-        }
-
+        if (!$room) throw new Exception("Room not found", 404);
         return $room;
     }
 
@@ -170,9 +172,10 @@ class RoomService
         return $room->getFamilyId() === $familyId;
     }
     public function getAllRooms(): array
-{
-    return array_map(function($room) {
-        return $room->toArray();
-    }, $this->roomRepository->findAll());
-}
+    {
+        return array_map(function($room) {
+            return $room->toArray();
+        }, $this->roomRepository->findAll());
+    }
+
 }

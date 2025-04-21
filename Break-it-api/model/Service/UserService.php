@@ -30,7 +30,7 @@ class UserService
             $userData['phone'] ?? null,
             $userData['age'] ?? null,
             $userData['gender'] ?? null,
-            $userData['role'] ?? 'user'
+            $userData['role'] ?? ''
         );
 
         return $this->userRepository->create($user);
@@ -47,7 +47,7 @@ class UserService
     /**
      * Verify user credentials
      */
-    public function verifyCredentials(string $email, string $password): ?User
+    public function verifyCredentials(string $email, string $password): ? User
     {
         $user = $this->getUserByEmail($email);
         return ($user && password_verify($password, $user->getPassword())) ? $user : null;

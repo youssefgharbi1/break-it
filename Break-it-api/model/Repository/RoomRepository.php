@@ -112,7 +112,7 @@ class RoomRepository
         }
     }
 
-    public function update(Room $room): void
+    public function update(Room $room): bool
     {
         try {
             $stmt = $this->db->prepare("
@@ -132,15 +132,13 @@ class RoomRepository
                 ':code' => $room->getCode()
             ]);
 
-            if ($stmt->rowCount() === 0) {
-                throw new RuntimeException("No room found with ID: " . $room->getId());
-            }
+            return $stmt->rowCount() > 0;
         } catch (PDOException $e) {
             throw new RuntimeException("Failed to update room: " . $e->getMessage());
         }
     }
 
-    public function delete(int $id): void
+    public function delete(int $id): bool 
     {
         try {
             $stmt = $this->db->prepare("DELETE FROM rooms WHERE id = :id");
@@ -149,6 +147,7 @@ class RoomRepository
             if ($stmt->rowCount() === 0) {
                 throw new RuntimeException("No room found with ID: " . $id);
             }
+            return true;
         } catch (PDOException $e) {
             throw new RuntimeException("Failed to delete room: " . $e->getMessage());
         }

@@ -61,5 +61,18 @@ class User
     {
         return password_verify($password, $this->password);
     }
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'email' => $this->email,
+            'firstName' => $this->firstName,
+            'lastName' => $this->lastName,
+            'phone' => $this->phone,
+            'age' => $this->age,
+            'gender' => $this->gender,
+            'role' => $this->role,
+        ];
+    }
 }
 ?>

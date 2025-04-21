@@ -3,7 +3,6 @@ namespace App\Model;
 
 class Room
 {
-    // Essential attributes
     private $id;
     private $name;
     private $description;

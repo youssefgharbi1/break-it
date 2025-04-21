@@ -1,8 +1,5 @@
 <?php
-use App\Conf\dbConfig;
-$database = new App\Conf\Database($dbConfig);
-$userRepo = new App\model\Repository\UserRepository($database);
-$userService = new App\model\Service\UserService($userRepo);
+require_once __DIR__.'/../bootstrap.php';
 
 header("Access-Control-Allow-Origin: http://localhost:5173");
 header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
@@ -14,9 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit(0);
 }
 
-session_start();
 header("Content-Type: application/json");
-require_once __DIR__ . '/../models/User.php';
 
 $input = json_decode(file_get_contents('php://input'), true);
 
@@ -28,10 +23,13 @@ try {
     $user = $userService->verifyCredentials($input['email'], $input['password']);
 
     if ($user) {
+        $user = $user->toArray();
         $_SESSION['user'] = [
             'id' => $user['id'],
             'email' => $user['email'],
-            'name' => $user['first_name']
+            'name' => $user['firstName'],
+            'role' => $user['role']
+
         ];
         echo json_encode(['success' => true]);
     } else {

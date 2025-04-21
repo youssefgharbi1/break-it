@@ -162,6 +162,18 @@ class UserRepository
             throw new RuntimeException("Password update failed: " . $e->getMessage());
         }
     }
+    public function canManageRoom(int $userId): bool {
+        $stmt = $this->db->prepare("
+            SELECT role FROM users
+            WHERE id = :user_id ;
+        ");
+        $stmt->execute([
+            ':user_id' => $userId,
+        ]);
+        $role = $stmt->fetchColumn(); // Gets first column (role)
+        return strtolower($role) === 'p';
+
+    }
 
     private function hydrate(array $data): User
     {

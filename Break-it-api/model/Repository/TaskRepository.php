@@ -63,18 +63,40 @@ class TaskRepository
         try {
             $stmt = $this->db->prepare("
                 UPDATE tasks SET
-                    title = ?, description = ?, status = ?, category = ?,
-                    priority = ?, start_time = ?, due_time = ?,
-                    estimated_duration = ?, assigned_to = ?,
-                    recurring_pattern = ?, completion_notes = ?,
-                    points_value = ?, is_approved = ?
-                WHERE id = ?
+                    title = :title,
+                    description = :description,
+                    status = :status,
+                    category = :category,
+                    priority = :priority,
+                    start_time = :start_time,
+                    due_time = :due_time,
+                    estimated_duration = :estimated_duration,
+                    assigned_to = :assigned_to,
+                    recurring_pattern = :recurring_pattern,
+                    completion_notes = :completion_notes,
+                    points_value = :points_value,
+                    is_approved = :is_approved
+                WHERE id = :id
             ");
 
-            $stmt->execute(array_merge(
-                $this->extractTaskData($task),
-                [$task->getId()]
-            ));
+            $params = [
+                ':id' => $task->getId(),
+                ':title' => $task->getTitle(),
+                ':description' => $task->getDescription(),
+                ':status' => $task->getStatus(),
+                ':category' => $task->getCategory(),
+                ':priority' => $task->getPriority(),
+                ':start_time' => $task->getStartTime() ? $task->getStartTime()->format('Y-m-d H:i:s') : null,
+                ':due_time' => $task->getDueTime() ? $task->getDueTime()->format('Y-m-d H:i:s') : null,
+                ':estimated_duration' => $task->getEstimatedDuration(),
+                ':assigned_to' => $task->getAssignedTo(),
+                ':recurring_pattern' => $task->getRecurringPattern(),
+                ':completion_notes' => $task->getCompletionNotes(),
+                ':points_value' => $task->getPointsValue(),
+                ':is_approved' => $task->IsApproved()
+            ];
+
+            $stmt->execute($params);
 
             if ($stmt->rowCount() === 0) {
                 throw new RuntimeException("No task found with ID: " . $task->getId());
@@ -137,6 +159,41 @@ class TaskRepository
             return $tasks;
         } catch (PDOException $e) {
             throw new RuntimeException("Failed to find tasks by family: " . $e->getMessage());
+        }
+    }
+    public function findAll(): array
+    {
+        try {
+            $stmt = $this->db->query("SELECT * FROM tasks ORDER BY id ASC");
+            
+            $tasks = [];
+            while ($data = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $tasks[] = $this->hydrate($data)->toArray();
+            }
+            
+            // Return structured response with data wrapper
+            return [
+                'success' => true,
+                'data' => $tasks,
+                'meta' => [
+                    'count' => count($tasks),
+                    'timestamp' => (new DateTime())->format(DateTime::ATOM)
+                ]
+            ];
+            
+        } catch (PDOException $e) {
+            // Return error structure
+            return [
+                'success' => false,
+                'error' => [
+                    'message' => 'Failed to retrieve tasks',
+                    'code' => $e->getCode(),
+                    'details' => $e->getMessage()
+                ],
+                'meta' => [
+                    'timestamp' => (new DateTime())->format(DateTime::ATOM)
+                ]
+            ];
         }
     }
 

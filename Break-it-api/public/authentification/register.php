@@ -1,12 +1,10 @@
 <?php
 
 // Bootstrap
-use App\Conf\dbConfig;
-$database = new App\Conf\Database($dbConfig);
-$userRepo = new App\model\Repository\UserRepository($database);
-$userService = new App\model\Service\UserService($userRepo);
+require_once __DIR__.'/../bootstrap.php';
 
-session_start();
+
+
 ob_start();
 header("Access-Control-Allow-Origin: http://localhost:5173");
 header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
@@ -18,7 +16,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit(0);
 }
 header("Content-Type: application/json");
-require_once __DIR__ . '/../models/User.php';
 
 $input = json_decode(file_get_contents('php://input'), true);
 
