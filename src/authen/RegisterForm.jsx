@@ -30,8 +30,6 @@ const RegisterForm = () => {
     }));
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
   };
-
-  console.log(formData)
   const validateForm = () => {
     const newErrors = {};
     const phoneRegex = /^[+]?[(]?[0-9]{1,4}[)]?[-\s.]?[0-9]{1,3}[-\s.]?[0-9]{3,6}$/im;
@@ -69,7 +67,7 @@ const RegisterForm = () => {
 
     setLoading(true);
     try {
-      fetch('http://localhost/break-it-api/public/register.php', {
+      fetch('http://localhost/break-it-api/public/authentification/register.php', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json', // Required for JSON data

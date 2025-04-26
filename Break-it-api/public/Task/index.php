@@ -1,10 +1,11 @@
 <?php
-require_once __DIR__.'/../../bootstrap.php';
-use App\Model\Task;
 header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Origin: http://localhost:5173');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, PATCH, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
+header("Access-Control-Allow-Credentials: true");
+require_once __DIR__.'/../../bootstrap.php';
+use App\Model\Task;
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(204);
     exit;
@@ -28,6 +29,10 @@ try {
                 // GET /api/tasks?id=123
                 $task = $taskService->getTaskById($taskId);
                 echo json_encode(['data' => $task->toArray()]);
+            } else  if (isset($_GET['room_id'])) {
+                $roomId = (int)$_GET['room_id'];
+                $tasks = $taskService->getTasksByRoomId($roomId);
+                echo json_encode(['data' => array_map(fn($t) => $t->toArray(), $tasks)]);
             } else {
                 // GET /api/tasks
                 $familyId = $_GET['family_id'] ?? null;
@@ -47,7 +52,7 @@ try {
 
         case 'POST':
             // POST /api/tasks
-            $required = ['title', 'created_by', 'assigned_to', 'family_id', 'category'];
+            $required = ['title', 'created_by', 'assigned_to', 'family_id', 'category', 'room_id'];
             foreach ($required as $field) {
                 if (empty($input[$field])) {
                     throw new InvalidArgumentException("Missing required field: $field", 400);
@@ -67,7 +72,8 @@ try {
                 'due_time' => isset($input['due_time']) ? $input['due_time'] : null,
                 'estimated_duration' => $input['estimated_duration'] ?? null,
                 'recurring_pattern' => $input['recurring_pattern'] ?? null,
-                'points_value' => $input['points_value'] ?? 1
+                'points_value' => $input['points_value'] ?? 1,
+                'room_id' => $input['room_id']
             ]);
 
             http_response_code(201);

@@ -216,6 +216,36 @@ class RoomMembersRepository {
 
         return $members;
     }
+    public function getRoomsByMemberId(int $memberId): array {
+        $stmt = $this->db->prepare("
+            SELECT 
+                rm.room_id,
+                rm.member_id,
+                rm.joined_at,
+                rm.request_status,
+                r.name AS room_name
+            FROM room_members rm
+            JOIN rooms r ON rm.room_id = r.id
+            WHERE rm.member_id = :member_id
+            AND rm.request_status = 'accepted'
+            ORDER BY rm.joined_at
+        ");
+        
+        $stmt->execute([':member_id' => $memberId]);
+
+        $rooms = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $rooms[] = [
+                'room_id' => $row['room_id'],
+                'member_id' => $row['member_id'],
+                'joined_at' => $row['joined_at'],
+                'request_status' => $row['request_status'],
+                'room_name' => $row['room_name']
+            ];
+        }
+
+        return $rooms;
+    }
     public function findByStatus(int $roomId, string $status): array {
         $stmt = $this->db->prepare("
             SELECT * FROM room_members 

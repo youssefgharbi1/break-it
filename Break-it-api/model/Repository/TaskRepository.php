@@ -27,8 +27,8 @@ class TaskRepository
                     title, description, status, category, priority, date_created,
                     start_time, due_time, estimated_duration, created_by,
                     assigned_to, family_id, recurring_pattern, completion_notes,
-                    points_value, is_approved
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    points_value, is_approved, room_id
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ");
 
             $stmt->execute($this->extractTaskData($task));
@@ -76,6 +76,7 @@ class TaskRepository
                     completion_notes = :completion_notes,
                     points_value = :points_value,
                     is_approved = :is_approved
+                    room_id = :room_id
                 WHERE id = :id
             ");
 
@@ -93,7 +94,8 @@ class TaskRepository
                 ':recurring_pattern' => $task->getRecurringPattern(),
                 ':completion_notes' => $task->getCompletionNotes(),
                 ':points_value' => $task->getPointsValue(),
-                ':is_approved' => $task->IsApproved()
+                ':is_approved' => $task->IsApproved(),
+                'room_id' =>$task->getRoomId()
             ];
 
             $stmt->execute($params);
@@ -224,6 +226,34 @@ class TaskRepository
         }
     }
 
+    public function findByRoomId(int $roomId): array
+    {
+        try {
+            $stmt = $this->db->prepare("
+                SELECT * FROM tasks 
+                WHERE room_id = ?
+                ORDER BY 
+                    CASE priority
+                        WHEN 'urgent' THEN 1
+                        WHEN 'high' THEN 2
+                        WHEN 'medium' THEN 3
+                        WHEN 'low' THEN 4
+                    END,
+                    due_time ASC
+            ");
+            $stmt->execute([$roomId]);
+            
+            $tasks = [];
+            while ($data = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $tasks[] = $this->hydrate($data);
+            }
+            
+            return $tasks;
+        } catch (PDOException $e) {
+            throw new RuntimeException("Failed to find tasks by room ID: " . $e->getMessage());
+        }
+    }
+
     public function completeTask(int $taskId, ?string $notes = null): void
     {
         try {
@@ -280,7 +310,8 @@ class TaskRepository
             $data['recurring_pattern'] ?? null,
             $data['completion_notes'] ?? null,
             (int)$data['points_value'] ?? 1,
-            (bool)$data['is_approved']
+            (bool)$data['is_approved'] ,
+            ((int)$data['room_id'])
         );
         $task->setId((int)$data['id']);
         return $task;

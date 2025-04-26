@@ -1,34 +1,33 @@
 <?php
-require_once __DIR__ . '/../../bootstrap.php';
-
 header("Access-Control-Allow-Origin: http://localhost:5173");
 header('Content-Type: application/json');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, PATCH, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type');
+header('Access-Control-Allow-Headers: Content-Type, Authorization');
+header("Access-Control-Allow-Credentials: true");
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(204);
     exit;
 }
+require_once __DIR__ . '/../../bootstrap.php';
+
 
 $method = $_SERVER['REQUEST_METHOD'];
 $input = json_decode(file_get_contents('php://input'), true);
-$roomId = $_GET['id'] ?? null;
+$roomId = $_GET['room_id'] ?? null;
 $userId = $_SESSION['user']['id']; // You'll need to implement this based on your auth system
 
 
 try {
     switch ($method) {
         case 'GET':
-            // POST /api/room-members - Request to join a room
-            if (isset($input['room_id'])) {
-                // Request to join a specific room
-                $roomMembersService->requestToJoin((int)$input['room_id'], $userId);
+            // POST /api/room-members - check is member
+            if ($roomId) {
                 http_response_code(201);
-                echo json_encode(['message' => 'Join request submitted']);
+                echo json_encode(["success"=> true, "data" => $roomMembersService->isMember((int)$roomId, $userId)]);
             } else {
-                // Show all room members
+                // Show all members
                 $allMembers = $roomMembersService->getAllMembers();
-                echo json_encode(['data' => $allMembers]);
+                echo json_encode(["success"=> true, 'data' => $allMembers]);
             }
             break;
 
@@ -36,20 +35,20 @@ try {
             // POST /api/room-members - Request to join a room
             if (!isset($input['room_id'])) {
                 http_response_code(400);
-                echo json_encode(['error' => 'Room ID required']);
+                echo json_encode(["success"=> false, 'error' => 'Room ID required']);
                 break;
             }
 
             $roomMembersService->requestToJoin((int)$input['room_id'], (int)$input['member_id']);
             http_response_code(201);
-            echo json_encode(['message' => 'Join request submitted']);
+            echo json_encode(["success"=> true, 'message' => 'Join request submitted']);
             break;
 
         case 'PUT':
             // PUT /api/room-members?id=123 - Approve/reject member
             if (!$roomId || !isset($input['member_id']) || !isset($input['action'])) {
                 http_response_code(400);
-                echo json_encode(['error' => 'Room ID, member ID and action required']);
+                echo json_encode(["success"=> false, 'error' => 'Room ID, member ID and action required']);
                 break;
             }
 
@@ -58,13 +57,13 @@ try {
 
             if ($action === 'approve') {
                 $roomMembersService->approveMember((int)$roomId, $userId, $memberId);
-                echo json_encode(['message' => 'Member approved']);
+                echo json_encode(["success"=> true, 'message' => 'Member approved']);
             } elseif ($action === 'reject') {
                 $roomMembersService->rejectMember((int)$roomId, $userId, $memberId);
-                echo json_encode(['message' => 'Member rejected']);
+                echo json_encode(["success"=> true, 'message' => 'Member rejected']);
             } else {
                 http_response_code(400);
-                echo json_encode(['error' => 'Invalid action']);
+                echo json_encode(["success"=> false, 'error' => 'Invalid action']);
             }
             break;
 
@@ -73,7 +72,7 @@ try {
             // id is room id
             if (!$roomId || !isset($_GET['member_id']) || !isset($_GET['action'])) {
             http_response_code(400);
-            echo json_encode(['error' => 'Room ID, member ID, and action required']);
+            echo json_encode(["success"=> false, 'error' => 'Room ID, member ID, and action required']);
             break;
             }
 
@@ -82,25 +81,25 @@ try {
 
             if ($action === 'kick') {
             $roomMembersService->kickMember((int)$roomId, $userId, $memberId);
-            echo json_encode(['message' => 'Member kicked from the room']);
+            echo json_encode(["success"=> true, 'message' => 'Member kicked from the room']);
             } elseif ($action === 'reject') {
             $roomMembersService->rejectMember((int)$roomId, $userId, $memberId);
-            echo json_encode(['message' => 'Member request rejected']);
+            echo json_encode(["success"=> true, 'message' => 'Member request rejected']);
             } else {
             http_response_code(400);
-            echo json_encode(['error' => 'Invalid action']);
+            echo json_encode(["success"=> false, 'error' => 'Invalid action']);
             }
             break;
 
         default:
             http_response_code(405);
-            echo json_encode(['error' => 'Method not allowed']);
+            echo json_encode(["success"=> false, 'error' => 'Method not allowed']);
     }
 } catch (RuntimeException $e) {
     http_response_code(400);
-    echo json_encode(['error' => $e->getMessage()]);
+    echo json_encode(["success"=> false, 'error' => $e->getMessage()]);
 } catch (Exception $e) {
     http_response_code(500);
-    echo json_encode(['error' => 'Server error']);
+    echo json_encode(["success"=> false, 'error' => 'Server error']);
     error_log($e->getMessage());
 }

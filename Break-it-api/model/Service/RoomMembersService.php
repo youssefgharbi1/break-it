@@ -95,5 +95,8 @@ class RoomMembersService {
 
         return $indexedMembers;
     }
-    
+    public function getRoomsByMemberId(int $memberId): array
+    {
+        return $this->roomMembersRepository->getRoomsByMemberId($memberId);
+    }
 }

@@ -23,6 +23,9 @@ class Task
     private $completionNotes;
     private $pointsValue;
     private $isApproved;
+    private $roomId;
+
+    
 
     // Status constants
     const STATUS_PENDING = 'pending';
@@ -154,6 +157,10 @@ class Task
     {
         return $this->pointsValue;
     }
+    public function getRoomId(): ?int
+    {
+        return $this->roomId;
+    }
 
     public function IsApproved(): bool
     {
@@ -255,6 +262,10 @@ class Task
     {
         $this->isApproved = $isApproved;
     }
+    public function setRoomId(?int $roomId): void
+    {
+        $this->roomId = $roomId;
+    }
 
     // Business logic methods
     public function isOverdue(): bool
@@ -313,7 +324,9 @@ class Task
             'completionNotes' => $this->completionNotes,
             'pointsValue' => $this->pointsValue,
             'isApproved' => $this->isApproved,
+            'roomId' => $this->roomId, // Added roomId here
         ];
     }
+
 }
 ?>

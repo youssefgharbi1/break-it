@@ -58,6 +58,13 @@ class TaskService
         return $task;
     }
     /**
+     * Gets tasks by room ID
+     */
+    public function getTasksByRoomId(int $roomId): array
+    {
+        return $this->repository->findByRoomId($roomId);
+    }
+    /**
      * Updates an existing task
      */
     public function updateTask(int $taskId, array $updatedData): Task

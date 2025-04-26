@@ -1,6 +1,4 @@
 <?php
-require_once __DIR__.'/../bootstrap.php';
-
 header("Content-Type: application/json");
 header("Access-Control-Allow-Origin: http://localhost:5173");
 header("Access-Control-Allow-Credentials: true");
@@ -11,6 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit(0);
 }
 $response = ['success' => false, 'message' => ''];
+require_once __DIR__.'/../../bootstrap.php';
 
 try {
     // Check if user was actually logged in

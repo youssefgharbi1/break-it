@@ -23,8 +23,8 @@ class UserRepository
 
             $stmt = $this->db->prepare("
                 INSERT INTO users 
-                (email, first_name, last_name, password, phone, age, gender, role, created_at) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())
+                (email, first_name, last_name, password, phone, age, gender, role) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             ");
             
             $stmt->execute([
