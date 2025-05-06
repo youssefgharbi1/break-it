@@ -27,9 +27,12 @@ class TaskService
         $task = new Task(
             $taskData['title'],
             $taskData['created_by'],
+            $taskData['created_by_name'] ?? null,
             $taskData['assigned_to'],
+            $taskData['assigned_to_name'] ?? null,
             $taskData['family_id'],
             $taskData['category'],
+            $taskData['room_id'],
             $taskData['description'] ?? null,
             $taskData['status'] ?? Task::STATUS_PENDING,
             $taskData['priority'] ?? Task::PRIORITY_MEDIUM,

@@ -1,28 +1,34 @@
 <?php
 namespace App\model\Service;
 
+use App\model\Repository\RoomRepository;
 use App\model\Repository\UserRepository;
 use App\model\Repository\RoomMembersRepository;
+use App\Model\Room;
 use RuntimeException;
 
 class RoomMembersService {
     private $roomMembersRepository;
     private $userRepository;
+    private $roomRepository;
 
     public function __construct(
         RoomMembersRepository $roomMembersRepo,
-        UserRepository $userRepo
+        UserRepository $userRepo,
+        RoomRepository $roomRepo
     ) {
         $this->roomMembersRepository = $roomMembersRepo;
         $this->userRepository = $userRepo;
+        $this->roomRepository = $roomRepo;
     }
 
-    public function requestToJoin(int $roomId, int $userId): void
+    public function requestToJoin($roomcode ,int $roomId = null, int $userId): void
     {
+        $roomId = $this->roomRepository->findByCode($roomcode)->getId();
         if ($this->roomMembersRepository->hasMembership($roomId, $userId)) {
             throw new RuntimeException("User already has membership status");
         }
-
+        
         $this->roomMembersRepository->addRequest($roomId, $userId);
     }
 
@@ -60,14 +66,15 @@ class RoomMembersService {
         }
     }
 
-    public function getPendingRequests(int $roomId): array
+    public function getPendingRequests(int $roomId, int $userId): array
     {
+        $this->verifyApprover($roomId, $userId);
         return $this->roomMembersRepository->findByStatus($roomId, 'pending');
     }
 
-    private function verifyApprover( int $userId): void
+    public function verifyApprover(int $roomId, int $userId): void
     {
-        if (!$this->userRepository->canManageRoom($userId)) {
+        if (!$this->canManageRoom($roomId, $userId)) {
             throw new RuntimeException("Unauthorized approval attempt");
         }
     }
@@ -78,6 +85,10 @@ class RoomMembersService {
     public function isMember(int $roomId, int $userId): bool
     {
         return $this->roomMembersRepository->hasMembership($roomId, $userId);
+    }
+    public function canManageRoom(int $roomId, int $userId): bool
+    {
+        return $this->roomMembersRepository->isMember($roomId, $userId) && $this->userRepository->isParent($userId) ;
     }
     public function getAllMembers(): array
     {

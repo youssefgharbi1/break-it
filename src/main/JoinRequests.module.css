@@ -1,118 +1,155 @@
 .requestsOverlay {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 1000;
-    max-width: 350px;
-    width: 100%;
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  max-width: 350px;
+  width: 100%;
+}
+
+.requestsContainer {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+}
+
+.requestsTitle {
+  background-color: #E984A2;
+  color: white;
+  margin: 0;
+  padding: 12px 16px;
+  font-size: 1.1rem;
+}
+
+.requestsList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.requestItem {
+  padding: 12px 16px;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  overflow: hidden;
+}
+
+.requestInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.requestName {
+  font-weight: 600;
+  color: #333;
+}
+
+.requestEmail {
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.requestActions {
+  display: flex;
+  gap: 8px;
+}
+
+.approveButton {
+  background-color: #B9CC95;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.approveButton:hover {
+  background-color: #9cb57d;
+}
+
+.rejectButton {
+  background-color: #ff6b6b;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.rejectButton:hover {
+  background-color: #e05555;
+}
+
+.error {
+  color: #d32f2f;
+  background-color: #ffebee;
+  padding: 8px 12px;
+  border-radius: 4px;
+  margin: 8px;
+  font-size: 0.9rem;
+}
+/* Add these new styles */
+.toggleButton {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 999;
+  background: #E984A2;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  transition: all 0.2s ease;
+}
+
+.toggleButton:hover {
+  background: #d8738f;
+}
+
+.headerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #E984A2;
+}
+
+.closeButton {
+  background: transparent;
+  color: white;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0 16px;
+  line-height: 1;
+}
+
+/* Keep all your existing styles from previous versions */
+.requestsOverlay {
+  position: fixed;
+  top: 60px; /* Adjusted to appear below toggle button */
+  right: 20px;
+  z-index: 1000;
+  max-width: 350px;
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .requestsOverlay {
+    top: 10px;
+    right: 10px;
+    left: 10px;
+    max-width: none;
   }
-  
-  .requestsContainer {
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    overflow: hidden;
-  }
-  
-  .requestsTitle {
-    background-color: #E984A2;
-    color: white;
-    margin: 0;
-    padding: 12px 16px;
-    font-size: 1.1rem;
-  }
-  
-  .requestsList {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    max-height: 400px;
-    overflow-y: auto;
-  }
-  
-  .requestItem {
-    padding: 12px 16px;
-    border-bottom: 1px solid #f0f0f0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  .requestInfo {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .requestName {
-    font-weight: 600;
-    color: #333;
-  }
-  
-  .requestEmail {
-    font-size: 0.8rem;
-    color: #666;
-  }
-  
-  .requestActions {
-    display: flex;
-    gap: 8px;
-  }
-  
-  .approveButton {
-    background-color: #B9CC95;
-    color: white;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: all 0.2s ease;
-  }
-  
-  .approveButton:hover {
-    background-color: #9cb57d;
-  }
-  
-  .rejectButton {
-    background-color: #ff6b6b;
-    color: white;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: all 0.2s ease;
-  }
-  
-  .rejectButton:hover {
-    background-color: #e05555;
-  }
-  
-  .error {
-    color: #d32f2f;
-    background-color: #ffebee;
-    padding: 8px 12px;
-    border-radius: 4px;
-    margin: 8px;
-    font-size: 0.9rem;
-  }
-  
-  /* Animation for new requests */
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  
-  .requestItem {
-    animation: fadeIn 0.3s ease-out;
-  }
-  
-  /* Responsive adjustments */
-  @media (max-width: 768px) {
-    .requestsOverlay {
-      top: 10px;
-      right: 10px;
-      left: 10px;
-      max-width: none;
-    }
-  }
+}

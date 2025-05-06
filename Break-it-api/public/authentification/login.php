@@ -26,10 +26,10 @@ try {
         $_SESSION['user'] = [
             'id' => $user['id'],
             'email' => $user['email'],
-            'name' => $user['firstName'],
+            'username' => $user['firstName'] . " " . $user['lastName'],
             'role' => $user['role']
         ];
-        echo json_encode(['success' => true]);
+        echo json_encode(['success' => true, "user" => $_SESSION['user']]);
     } else {
         throw new Exception("Invalid credentials");
     }

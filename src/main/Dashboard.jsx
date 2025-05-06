@@ -5,7 +5,7 @@ import SessionContext from '../session/SessionContext';
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const { checkSession ,user } = useContext(SessionContext);
+  const { user } = useContext(SessionContext);
   const [roomCode, setRoomCode] = useState('');
   const [userRooms, setUserRooms] = useState([]);
   const [error, setError] = useState('');
@@ -89,8 +89,8 @@ const Dashboard = () => {
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          room_id: roomCode.toUpperCase() ,
-          member_id: user
+          room_code: roomCode.toUpperCase() ,
+          member_id: user.id
         })
       });
   
@@ -160,7 +160,7 @@ const Dashboard = () => {
       </div>
       
       {/* Create Room Section */}
-      {user.user.role === 'P' ? (
+      {user.role === 'P' ? (
       <div className={styles.section}>
         <h2>Create New Room</h2>
         <button 

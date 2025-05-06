@@ -17,9 +17,9 @@ class RoomMembersRepository {
             INSERT INTO room_members 
                 (room_id, member_id, request_status, joined_at)
             VALUES 
-                (:room_id, :member_id, 'accepted', NOW())
+                (:room_id, :member_id, 'approved', NOW())
             ON DUPLICATE KEY UPDATE
-                request_status = 'accepted',
+                request_status = 'approved',
                 joined_at = NOW()
         ");
 
@@ -48,7 +48,7 @@ class RoomMembersRepository {
     public function approveMember(int $roomId, int $memberId): bool {
         $stmt = $this->db->prepare("
             UPDATE room_members 
-            SET request_status = 'accepted',
+            SET request_status = 'approved',
                 joined_at = NOW()
             WHERE room_id = :room_id 
             AND member_id = :member_id
@@ -97,7 +97,7 @@ class RoomMembersRepository {
             SELECT COUNT(*) FROM room_members
             WHERE room_id = :room_id 
             AND member_id = :member_id
-            AND request_status = 'accepted'
+            AND request_status = 'approved'
         ");
         $stmt->execute([
             ':room_id' => $roomId,
@@ -115,11 +115,12 @@ class RoomMembersRepository {
                 rm.joined_at,
                 rm.request_status,
                 u.first_name,  
+                u.last_name,
                 u.email      
             FROM room_members rm
             JOIN users u ON rm.member_id = u.id
             WHERE rm.room_id = :room_id
-            AND rm.request_status = 'accepted'
+            AND rm.request_status = 'approved'
             ORDER BY rm.joined_at
         ");
         
@@ -159,7 +160,7 @@ class RoomMembersRepository {
             SELECT COUNT(*) FROM room_members
             WHERE room_id = :room_id 
             AND member_id = :member_id
-            AND request_status = 'accepted'
+            AND request_status = 'approved'
         ");
         $stmt->execute([
             ':room_id' => $roomId,
@@ -227,7 +228,7 @@ class RoomMembersRepository {
             FROM room_members rm
             JOIN rooms r ON rm.room_id = r.id
             WHERE rm.member_id = :member_id
-            AND rm.request_status = 'accepted'
+            AND rm.request_status = 'approved'
             ORDER BY rm.joined_at
         ");
         
@@ -248,7 +249,9 @@ class RoomMembersRepository {
     }
     public function findByStatus(int $roomId, string $status): array {
         $stmt = $this->db->prepare("
-            SELECT * FROM room_members 
+            SELECT rm.*, CONCAT(u.first_name, ' ', u.last_name) AS username, u.email
+            FROM room_members rm
+            JOIN users u ON rm.member_id = u.id
             WHERE room_id = :room_id
             AND request_status = :status
         ");

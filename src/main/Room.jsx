@@ -155,6 +155,7 @@ const Room = () => {
 
   }
   const renderCreateTaskSection = () => {
+
     if (user.role !== 'P') return null;
     return (
       <button 
@@ -181,7 +182,7 @@ const Room = () => {
 
   return (
     <div className={styles.pageLayout}>
-    {renderRequestSection}
+    {renderRequestSection()}
     <div className={[styles.roomContainer, styles.leftContent].join(' ')}>
       <header className={styles.roomHeader}>
         <div className={styles.headerLeft}>
@@ -194,7 +195,7 @@ const Room = () => {
           </button>
           <h1>{room.name}</h1>
         </div>
-        <p className={styles.roomCode}>Room Code: {room.code}</p>
+        {(user.role !== 'P') ? null : <p className={styles.roomCode}>Room Code: {room.code}</p>}
         {renderCreateTaskSection()}
       </header>
       

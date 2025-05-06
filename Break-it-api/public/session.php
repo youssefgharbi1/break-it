@@ -1,5 +1,4 @@
 <?php
-// Add at the top of session.php
 header("Access-Control-Allow-Origin: http://localhost:5173"); // Vite dev server
 header("Access-Control-Allow-Credentials: true"); // Required for cookies/session
 header("Access-Control-Allow-Methods: GET, POST, DELETE, OPTIONS");
@@ -31,7 +30,7 @@ switch ($method) {
         break;
 
     case 'GET': // Retrieve session data
-        echo json_encode(['status' => 'success', 'session' => $_SESSION]);
+        echo json_encode(['status' => 'success', 'session' => $_SESSION["user"]]);
         break;
 
     case 'DELETE': // Destroy the session

@@ -27,7 +27,7 @@ const HomePage = () => {
         </div>
         <div className={styles.heroImage}>
           {/* Placeholder for app screenshot */}
-          <div className={styles.mockup}></div>
+          <img src="/app-preview.jpg" alt="App Preview" className={styles.mockup} />
         </div>
       </section>
 

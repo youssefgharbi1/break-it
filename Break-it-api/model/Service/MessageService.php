@@ -18,6 +18,10 @@ class MessageService {
         
         return $this->messageRepo->create($roomId, $userId, $content);
     }
+    public function sendMessageAI(int $roomId, string $content): Message {
+        
+        return $this->messageRepo->create($roomId, 101, $content);
+    }
     
     public function getMessages(int $roomId, int $userId): array {
         if (!$this->roomMembersService->isMember($roomId, $userId)) {

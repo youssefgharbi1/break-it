@@ -1,20 +1,23 @@
 .messagesContainer {
     display: flex;
     flex-direction: column;
-    height: 90vh;
-    max-height: 90vh;
+    height: 100vh;
     border: 1px solid #e0e0e0;
     border-radius: 8px;
     overflow: hidden;
-    max-width: 100%;
-    min-width: 25%
+    max-width: 35%;
+    min-width: 25%;
+    position: relative;
   }
   
   .messagesList {
     flex: 1;
     padding: 16px;
     overflow-y: auto;
+    scroll-behavior: smooth;
     background-color: #f9f9f9;
+    overscroll-behavior: contain; /* Prevent scroll chaining to parent */
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
   }
   
   .message {
@@ -109,4 +112,21 @@
     background-color: #ffebee;
     border-radius: 4px;
     font-size: 0.9rem;
+  }
+
+  .messagesList::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .messagesList::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+  
+  .messagesList::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+  }
+  
+  .messagesList::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
   }

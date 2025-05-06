@@ -1,31 +1,40 @@
 import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import styles from './JoinRequests.module.css';
 
 const JoinRequests = ({ roomId }) => {
   const [requests, setRequests] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  const [isVisible, setIsVisible] = useState(false);
+  const [isManuallyHidden, setIsManuallyHidden] = useState(false);
+  const [autoHideTimer, setAutoHideTimer] = useState(null);
 
-  // Fetch join requests for this room
+  // Reset the 6-second auto-hide timer
+  const resetAutoHideTimer = () => {
+    clearTimeout(autoHideTimer);
+    if (requests.length > 0 && !isManuallyHidden) {
+      setAutoHideTimer(setTimeout(() => setIsVisible(false), 6000));
+    }
+  };
+
   const fetchJoinRequests = async () => {
     try {
       const response = await fetch(
         `http://localhost/break-it-api/public/RoomMembers/?room_id=${roomId}&action=request`,
-        {
-          
-          credentials: 'include',
-          headers: { 'Accept': 'application/json' }
-        }
+        { credentials: 'include', headers: { 'Accept': 'application/json' } }
       );
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
-      }
-
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      
       const data = await response.json();
       setRequests(data.data || []);
       
+      // Only make visible if there are requests and not manually hidden
+      if (data.data?.length > 0 && !isManuallyHidden) {
+        setIsVisible(true);
+        resetAutoHideTimer();
+      }
     } catch (err) {
       setError(err.message);
     } finally {
@@ -33,7 +42,6 @@ const JoinRequests = ({ roomId }) => {
     }
   };
 
-  // Handle request response (approve/reject)
   const handleRequestResponse = async (action, id) => {
     try {
       const response = await fetch(
@@ -42,62 +50,124 @@ const JoinRequests = ({ roomId }) => {
           method: 'PATCH',
           credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action : action, member_id : id, room_id : roomId })
+          body: JSON.stringify({ action, member_id: id, room_id: roomId })
         }
       );
 
       if (!response.ok) throw new Error(`Failed to ${action} request`);
       
-      // Refresh the requests list
-      fetchJoinRequests();
+      setRequests(prev => prev.filter(r => r.member_id !== id));
+      resetAutoHideTimer();
     } catch (err) {
       setError(err.message);
     }
   };
 
+  const toggleVisibility = () => {
+    if (isManuallyHidden) {
+      setIsManuallyHidden(false);
+      if (requests.length > 0) {
+        setIsVisible(true);
+        resetAutoHideTimer();
+      }
+    } else {
+      setIsManuallyHidden(true);
+      setIsVisible(false);
+      clearTimeout(autoHideTimer);
+    }
+  };
+
   useEffect(() => {
     fetchJoinRequests();
-    const interval = setInterval(fetchJoinRequests, 10000); // Refresh every 10 seconds
-    
-    return () => clearInterval(interval);
+    const interval = setInterval(fetchJoinRequests, 10000);
+    return () => {
+      clearInterval(interval);
+      clearTimeout(autoHideTimer);
+    };
   }, [roomId]);
 
-  if (isLoading) return null; // Or loading spinner
+  useEffect(() => {
+    if (!isManuallyHidden) {
+      setIsVisible(requests.length > 0);
+      resetAutoHideTimer();
+    }
+  }, [requests, isManuallyHidden]);
+
+  if (isLoading) return null;
   if (error) return <div className={styles.error}>{error}</div>;
-  if (requests.length === 0) return null;
 
   return (
-    <div className={styles.requestsOverlay}>
-      <div className={styles.requestsContainer}>
-        <h3 className={styles.requestsTitle}>Join Requests</h3>
-        
-        <ul className={styles.requestsList}>
-          {requests.map(request => (
-            <li key={request.member_id} className={styles.requestItem}>
-              <div className={styles.requestInfo}>
-                <span className={styles.requestName}>{request.username}</span>
-                <span className={styles.requestEmail}>{request.email}</span>
+    <>
+      {/* Toggle Button (always visible) */}
+      <button 
+        onClick={toggleVisibility}
+        className={styles.toggleButton}
+      >
+        {isManuallyHidden ? 'Show Requests' : 'Hide Requests'}
+      </button>
+
+      {/* Requests Overlay */}
+      <AnimatePresence>
+        {isVisible && (
+          <motion.div
+            className={styles.requestsOverlay}
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3 }}
+            onHoverStart={() => clearTimeout(autoHideTimer)}
+            onHoverEnd={resetAutoHideTimer}
+          >
+            <div className={styles.requestsContainer}>
+              <div className={styles.headerRow}>
+                <h3 className={styles.requestsTitle}>Join Requests</h3>
+                <button 
+                  onClick={toggleVisibility}
+                  className={styles.closeButton}
+                >
+                  ×
+                </button>
               </div>
               
-              <div className={styles.requestActions}>
-                <button
-                  onClick={() => handleRequestResponse('approve', request.member_id)}
-                  className={styles.approveButton}
-                >
-                  Approve
-                </button>
-                <button
-                  onClick={() => handleRequestResponse('reject', request.member_id)}
-                  className={styles.rejectButton}
-                >
-                  Reject
-                </button>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </div>
+              <ul className={styles.requestsList}>
+                <AnimatePresence>
+                  {requests.map((request) => (
+                    <motion.li
+                      key={request.member_id}
+                      className={styles.requestItem}
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <div className={styles.requestInfo}>
+                        <span className={styles.requestName}>{request.username}</span>
+                        <span className={styles.requestEmail}>{request.email}</span>
+                      </div>
+                      
+                      <div className={styles.requestActions}>
+                        <button
+                          onClick={() => handleRequestResponse('approve', request.member_id)}
+                          className={styles.approveButton}
+                        >
+                          Approve
+                        </button>
+                        <button
+                          onClick={() => handleRequestResponse('reject', request.member_id)}
+                          className={styles.rejectButton}
+                        >
+                          Reject
+                        </button>
+                      </div>
+                    </motion.li>
+                  ))}
+                </AnimatePresence>
+              </ul>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 };
 

@@ -44,12 +44,11 @@ try {
 
         case 'POST':
             // POST /api/rooms
-            echo 'test';
             $input = json_decode(file_get_contents('php://input'), true);
             $room = $roomService->createRoom(
                 $input['name'],
                 $input['description'],
-                $input['family_id']
+                $userId
             );
             http_response_code(201);
             echo json_encode(["success"=> true, 'data' => $room]);
@@ -63,7 +62,7 @@ try {
                 $roomId,
                 $input['name'],
                 $input['description'],
-                $input['family_id']
+                $userId
             );
             echo json_encode(["success"=> true, 'data' => $room]);
             break;

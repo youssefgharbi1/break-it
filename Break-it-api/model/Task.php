@@ -1,52 +1,58 @@
 <?php
+
 namespace App\Model;
+
 use DateTime;
 use InvalidArgumentException;
 use LogicException;
 
 class Task
 {
-    private $id;
-    private $title;
-    private $description;
-    private $status;
-    private $category;
-    private $priority;
-    private $dateCreated;
-    private $startTime;
-    private $dueTime;
-    private $estimatedDuration;
-    private $createdBy;
-    private $assignedTo;
-    private $familyId;
-    private $recurringPattern;
-    private $completionNotes;
-    private $pointsValue;
-    private $isApproved;
-    private $roomId;
-
-    
-
     // Status constants
-    const STATUS_PENDING = 'pending';
-    const STATUS_IN_PROGRESS = 'in_progress';
-    const STATUS_COMPLETED = 'completed';
-    const STATUS_APPROVED = 'approved';
-    const STATUS_REJECTED = 'rejected';
-    const STATUS_ARCHIVED = 'archived';
+    public const STATUS_PENDING = 'pending';
+    public const STATUS_IN_PROGRESS = 'in_progress';
+    public const STATUS_COMPLETED = 'completed';
+    public const STATUS_APPROVED = 'approved';
+    public const STATUS_REJECTED = 'rejected';
+    public const STATUS_ARCHIVED = 'archived';
 
     // Priority constants
-    const PRIORITY_LOW = 'low';
-    const PRIORITY_MEDIUM = 'medium';
-    const PRIORITY_HIGH = 'high';
-    const PRIORITY_URGENT = 'urgent';
+    public const PRIORITY_LOW = 'low';
+    public const PRIORITY_MEDIUM = 'medium';
+    public const PRIORITY_HIGH = 'high';
+    public const PRIORITY_URGENT = 'urgent';
+
+    private ?int $id = null;
+    private string $title;
+    private ?string $description;
+    private string $status;
+    private string $category;
+    private string $priority;
+    private DateTime $dateCreated;
+    private ?DateTime $startTime;
+    private ?DateTime $dueTime;
+    private ?int $estimatedDuration;
+    private int $createdBy;
+    private string $createdByName;
+    private int $assignedTo;
+    private string $assignedToName;
+    private int $familyId;
+    private ?string $recurringPattern;
+    private ?string $completionNotes;
+    private int $pointsValue;
+    private bool $isApproved;
+    private int $roomId;
+
 
     public function __construct(
         string $title,
         int $createdBy,
+        string $createdByName,
         int $assignedTo,
+        string $assignedToName,
         int $familyId,
         string $category,
+        int $roomId,
         ?string $description = null,
         string $status = self::STATUS_PENDING,
         string $priority = self::PRIORITY_MEDIUM,
@@ -64,17 +70,48 @@ class Task
         $this->status = $status;
         $this->category = $category;
         $this->priority = $priority;
-        $this->dateCreated = $dateCreated ?: new DateTime();
+        $this->dateCreated = $dateCreated;
         $this->startTime = $startTime;
         $this->dueTime = $dueTime;
         $this->estimatedDuration = $estimatedDuration;
         $this->createdBy = $createdBy;
         $this->assignedTo = $assignedTo;
+        $this->assignedToName = $assignedToName;
         $this->familyId = $familyId;
         $this->recurringPattern = $recurringPattern;
         $this->completionNotes = $completionNotes;
         $this->pointsValue = $pointsValue;
         $this->isApproved = $isApproved;
+        $this->roomId = $roomId;
+
+        $this->validate();
+    }
+
+    private function validate(): void
+    {
+        if (empty($this->title)) {
+            throw new InvalidArgumentException('Task title cannot be empty');
+        }
+
+        if (!in_array($this->status, [
+            self::STATUS_PENDING,
+            self::STATUS_IN_PROGRESS,
+            self::STATUS_COMPLETED,
+            self::STATUS_APPROVED,
+            self::STATUS_REJECTED,
+            self::STATUS_ARCHIVED
+        ])) {
+            throw new InvalidArgumentException('Invalid task status');
+        }
+
+        if (!in_array($this->priority, [
+            self::PRIORITY_LOW,
+            self::PRIORITY_MEDIUM,
+            self::PRIORITY_HIGH,
+            self::PRIORITY_URGENT
+        ])) {
+            throw new InvalidArgumentException('Invalid task priority');
+        }
     }
 
     // Getters
@@ -166,6 +203,17 @@ class Task
     {
         return $this->isApproved;
     }
+    public function getAssignedToName(): string
+    {
+        return $this->assignedToName;
+    }
+    public function getCreatedByName(): string
+    {
+        return $this->createdByName;
+    }
+
+    
+    
 
     // Setters
     public function setId(int $id): void
@@ -238,11 +286,18 @@ class Task
     {
         $this->assignedTo = $userId;
     }
+    public function setAssignedToName(string $assignedToName): void
+    {
+        $this->assignedToName = $assignedToName;
+    }
     public function setCreatedBy(int $createdBy): void
     {
         $this->createdBy = $createdBy;
     }
-
+    public function setCreatedByName(string $createdByName): void
+    {
+        $this->createdByName = $createdByName;
+    }
     public function setFamilyId(int $familyId): void
     {
         $this->familyId = $familyId;
@@ -318,7 +373,9 @@ class Task
             'dueTime' => $this->dueTime ? $this->dueTime->format('Y-m-d H:i:s') : null,
             'estimatedDuration' => $this->estimatedDuration,
             'createdBy' => $this->createdBy,
+            'createdByName' => $this->createdByName ?? null,
             'assignedTo' => $this->assignedTo,
+            'assignedToName' => $this->assignedToName ?? null,
             'familyId' => $this->familyId,
             'recurringPattern' => $this->recurringPattern,
             'completionNotes' => $this->completionNotes,

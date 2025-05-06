@@ -66,7 +66,7 @@ const TaskDetails = ({ task, isExpanded }) => {
         )}
         {task.assignedTo && (
           <span role="listitem">
-            Assigned to: {task.assignedTo}
+            Assigned to: {task.assignedToName}
           </span>
         )}
       </div>

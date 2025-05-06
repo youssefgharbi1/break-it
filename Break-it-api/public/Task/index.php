@@ -17,23 +17,23 @@ try {
     $method = $_SERVER['REQUEST_METHOD'];
     $input = json_decode(file_get_contents('php://input'), true);
     $taskId = isset($_GET['id']) ? (int)$_GET['id'] : null;
+    $roomId = (int)$_GET['room_id'];
 
     // Route requests
     switch ($method) {
         case 'GET':
-            if (!$taskId){
-                $tasks = $taskService->getAllTasks();
-                echo json_encode(['data' => $tasks]);
-            }
-            else if ($taskId) {
-                // GET /api/tasks?id=123
+            if (isset($taskId)){
                 $task = $taskService->getTaskById($taskId);
                 echo json_encode(['data' => $task->toArray()]);
-            } else  if (isset($_GET['room_id'])) {
-                $roomId = (int)$_GET['room_id'];
+            }
+            else if (isset($roomId)) {
                 $tasks = $taskService->getTasksByRoomId($roomId);
-                echo json_encode(['data' => array_map(fn($t) => $t->toArray(), $tasks)]);
-            } else {
+                echo json_encode(['data' => array_map(fn($t) => $t->toArray(), $tasks)]);  
+            } else if ($taskId) {
+                // GET /api/tasks?id=123
+                $tasks = $taskService->getAllTasks();
+                echo json_encode(['data' => $tasks]);
+            }else {
                 // GET /api/tasks
                 $familyId = $_GET['family_id'] ?? null;
                 $userId = $_GET['user_id'] ?? null;

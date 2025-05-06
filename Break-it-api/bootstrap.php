@@ -1,5 +1,19 @@
 <?php
 // App/bootstrap.php
+$lifetime = 60 * 60 * 2 ; //2 hours 
+
+// Set cookie parameters BEFORE session_start
+session_set_cookie_params([
+    'lifetime' => $lifetime,
+    'path' => '/',
+    'domain' => '',        // Set your domain if needed
+    'secure' => false,     // true if you use HTTPS
+    'httponly' => true,
+    'samesite' => 'Lax',   // Or 'Strict'/'None' depending on your needs
+]);
+
+// Also extend server-side session GC (garbage collection) lifetime
+ini_set('session.gc_maxlifetime', $lifetime);
 
 // Set error reporting
 error_reporting(E_ALL);
@@ -84,7 +98,7 @@ $messageRepository = new App\Model\Repository\MessageRepository($database);
 $taskService = new App\model\Service\TaskService($taskRepository);
 $userService = new App\model\Service\UserService($userRepository);
 $roomService = new App\model\Service\RoomService($roomRepository, $roomMembersRepository);
-$roomMembersService = new App\model\Service\RoomMembersService($roomMembersRepository, $userRepository);
+$roomMembersService = new App\model\Service\RoomMembersService($roomMembersRepository, $userRepository, $roomRepository);
 $messageService = new App\Model\Service\MessageService($messageRepository, $roomMembersService);
 
 // Helper function to send JSON responses

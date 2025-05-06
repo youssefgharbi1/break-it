@@ -230,16 +230,22 @@ class TaskRepository
     {
         try {
             $stmt = $this->db->prepare("
-                SELECT * FROM tasks 
-                WHERE room_id = ?
-                ORDER BY 
-                    CASE priority
-                        WHEN 'urgent' THEN 1
-                        WHEN 'high' THEN 2
-                        WHEN 'medium' THEN 3
-                        WHEN 'low' THEN 4
-                    END,
-                    due_time ASC
+                SELECT 
+                t.*, 
+                CONCAT(assigned_user.first_name, ' ', assigned_user.last_name) AS assigned_to_name,
+                CONCAT(creator_user.first_name, ' ', creator_user.last_name) AS created_by_name
+            FROM tasks t
+            LEFT JOIN users assigned_user ON assigned_user.id = t.assigned_to
+            LEFT JOIN users creator_user ON creator_user.id = t.created_by
+            WHERE t.room_id = ?
+            ORDER BY 
+                CASE t.priority
+                    WHEN 'urgent' THEN 1
+                    WHEN 'high' THEN 2
+                    WHEN 'medium' THEN 3
+                    WHEN 'low' THEN 4
+                END,
+                t.due_time ASC
             ");
             $stmt->execute([$roomId]);
             
@@ -297,9 +303,12 @@ class TaskRepository
         $task = new Task(
             $data['title'],
             (int)$data['created_by'],
+            $data['created_by_name'] ?? null,
             (int)$data['assigned_to'],
+            $data['assigned_to_name'] ?? null,
             (int)$data['family_id'],
             $data['category'],
+            (int)$data['room_id'],
             $data['description'] ?? null,
             $data['status'] ?? Task::STATUS_PENDING,
             $data['priority'] ?? Task::PRIORITY_MEDIUM,
@@ -309,9 +318,8 @@ class TaskRepository
             $data['estimated_duration'] ?? null,
             $data['recurring_pattern'] ?? null,
             $data['completion_notes'] ?? null,
-            (int)$data['points_value'] ?? 1,
-            (bool)$data['is_approved'] ,
-            ((int)$data['room_id'])
+            (int)($data['points_value'] ?? 1),
+            (bool)$data['is_approved']
         );
         $task->setId((int)$data['id']);
         return $task;

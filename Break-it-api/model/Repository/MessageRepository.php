@@ -23,35 +23,37 @@ class MessageRepository {
             $roomId,
             $userId,
             $content,
-            new DateTime()
+            new DateTime(),
+            $_SESSION["user"]["username"]
         );
     }
     
-    public function getByRoom(int $roomId, int $limit = 100): array {
+    public function getByRoom(int $roomId, int $limit = 50): array {
         $stmt = $this->db->prepare("
-            SELECT m.*, u.first_name
+            SELECT m.*, CONCAT(u.first_name, ' ', u.last_name) AS username
             FROM messages m
             JOIN users u ON m.user_id = u.id
             WHERE m.room_id = ?
-            ORDER BY m.created_at DESC
+            ORDER BY m.created_at asc
             LIMIT ?
         ");
         $stmt->execute([$roomId, $limit]);
         
-        return array_map(
-            function($row) {
-                return [
-                    'message' => (new Message(
-                        $row['id'],
-                        $row['room_id'],
-                        $row['user_id'],
-                        $row['content'],
-                        new DateTime($row['created_at'])
-                    ))->toArray(),
-                    'user_first_name' => $row['first_name']
-                ];
-            },
-            $stmt->fetchAll(PDO::FETCH_ASSOC)
-        );
+        $messages = [];
+        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+            $createdAt = new DateTime($row['created_at']);
+            $messages[] = [
+                'message' => [
+                    'id' => (int)$row['id'],
+                    'room_id' => (int)$row['room_id'],
+                    'user_id' => (int)$row['user_id'],
+                    'username' => $row['username'],
+                    'content' => $row['content'],
+                    'created_at' => $createdAt->format(DateTime::ATOM)
+                ]
+            ];
+        }
+        
+        return $messages;
     }
 }

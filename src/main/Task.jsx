@@ -98,6 +98,8 @@ Task.propTypes = {
     recurringPattern: PropTypes.string,
     assignedTo: PropTypes.number,
     createdBy: PropTypes.number,
+    username: PropTypes.string,
+    email: PropTypes.string,
     familyId: PropTypes.number,
     roomId: PropTypes.number,
     isApproved: PropTypes.bool,

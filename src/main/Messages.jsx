@@ -95,9 +95,9 @@ const Messages = ({ roomId }) => {
   if (!messages.messages) {
     return <div className={styles.loading}>Loading messages...</div>;
   }
-
   return (
     <div className={styles.messagesContainer}>
+      {/* Scrollable messages area with fixed height */}
       <div className={styles.messagesList}>
         {messages.messages.map(({ message }) => (
           <div 
@@ -122,9 +122,11 @@ const Messages = ({ roomId }) => {
             </div>
           </div>
         ))}
+        {/* This empty div will be our scroll target */}
         <div ref={messagesEndRef} />
       </div>
-
+  
+      {/* Fixed input container at bottom */}
       <div className={styles.messageInputContainer}>
         {error && <div className={styles.error}>{error}</div>}
         <textarea
@@ -151,6 +153,5 @@ const Messages = ({ roomId }) => {
       </div>
     </div>
   );
-};
-
+}
 export default Messages;

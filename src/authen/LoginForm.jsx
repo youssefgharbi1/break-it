@@ -84,8 +84,7 @@ const LoginForm = () => {
 
       if (login) {
         login({
-          isAuthenticated: true,
-          user: data.user
+          ...data.user
         });
       }
       navigate('/dashboard');

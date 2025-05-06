@@ -15,11 +15,12 @@ const SessionProvider = ({ children }) => {
       user: userData,
       loading: false
     });
+    
   };
 
   const logout = async () => {
     try {
-      await fetch('http://localhost/break-it-api/public/authentification/logout.php', {
+      await fetch('http://localhost/break-it-api/public/authentification/logout.php/', {
         method: 'POST',
         credentials: 'include'
       });
@@ -38,16 +39,19 @@ const SessionProvider = ({ children }) => {
   };
 
   const checkSession = async () => {
+    setSession(prev => ({ ...prev, loading: true })); 
     try {
+      
       const response = await fetch('http://localhost/break-it-api/public/session.php', {
         credentials: 'include',
       });
       
       const data = await response.json();
       
-      if (data.success && data.user) {
-        login(data.user);
+      if (data.status === "success" && data.session) {
+        login(data.session);
       } else {
+        console.log('No active session, setting to unauthenticated');
         setSession({
           isAuthenticated: false,
           user: null,
@@ -67,7 +71,7 @@ const SessionProvider = ({ children }) => {
   useEffect(() => {
     checkSession();
   }, []);
-
+  
   const contextValue = {
     ...session,
     login,
