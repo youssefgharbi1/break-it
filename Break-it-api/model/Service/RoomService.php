@@ -36,7 +36,9 @@ class RoomService
             $name,
             $description,
             $familyId,
-            $dateCreated ?? date('Y-m-d H:i:s')
+            $dateCreated ?? date('Y-m-d H:i:s'),
+            null,
+            null
         );
         $room->setCode($this->roomRepository->generateUniqueCode());
         $room = $this->roomRepository->create($room);
@@ -49,13 +51,11 @@ class RoomService
      */
     public function updateRoom(
         int $roomId,
-        string $name,
-        string $description,
-        int $familyId
+        string $name = null,
+        string $description = null,
+        int $familyId = null,
+        string $img = null
     ): bool {
-        // Validate input
-        $this->validateRoomData($name, $description, $familyId);
-    
         // Get existing room
         $room = $this->getRoomById($roomId);
         if (!$room) {
@@ -66,6 +66,8 @@ class RoomService
         $room->setName($name);
         $room->setDescription($description);
         $room->setFamilyId($familyId);
+        $room->setImage($img);
+
     
         // Save changes
         if (!$this->roomRepository->update($room)) {

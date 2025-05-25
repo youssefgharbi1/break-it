@@ -74,6 +74,7 @@ class Task
         $this->startTime = $startTime;
         $this->dueTime = $dueTime;
         $this->estimatedDuration = $estimatedDuration;
+        $this->createdByName = $createdByName;
         $this->createdBy = $createdBy;
         $this->assignedTo = $assignedTo;
         $this->assignedToName = $assignedToName;

@@ -224,7 +224,8 @@ class RoomMembersRepository {
                 rm.member_id,
                 rm.joined_at,
                 rm.request_status,
-                r.name AS room_name
+                r.name as room_name,
+                r.*
             FROM room_members rm
             JOIN rooms r ON rm.room_id = r.id
             WHERE rm.member_id = :member_id
@@ -241,7 +242,8 @@ class RoomMembersRepository {
                 'member_id' => $row['member_id'],
                 'joined_at' => $row['joined_at'],
                 'request_status' => $row['request_status'],
-                'room_name' => $row['room_name']
+                'room_name' => $row['room_name'],
+                'image'  => $row['image']
             ];
         }
 

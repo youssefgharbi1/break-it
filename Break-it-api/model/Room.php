@@ -9,10 +9,11 @@ class Room
     private $familyId; //family id is the user id that created the room
     private $dateCreated;
     private $code;
+    private $image;
 
 
     // Constructor
-    public function __construct($id, $name, $description, $familyId, $dateCreated, $code = null)
+    public function __construct($id, $name, $description, $familyId, $dateCreated, $code = null, $image = null)
     {
         $this->id = $id;
         $this->name = $name;
@@ -20,6 +21,7 @@ class Room
         $this->familyId = $familyId;
         $this->dateCreated = $dateCreated;
         $this->code = $code;
+        $this->image = $image;
     }
 
     // Getters
@@ -53,7 +55,10 @@ class Room
     {
         return $this->code;
     }
-
+    public function getImage()
+    {
+        return $this->image;
+    } 
 
     // Setters
     public function setId($id)
@@ -82,6 +87,10 @@ class Room
     {
         $this->code = $code;
     }
+    public function setImage($image)
+    {
+        $this->image = $image;
+    } 
 
     public function generateRoomCode($length = 6): string {
         $characters = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Exclude ambiguous chars
@@ -100,7 +109,8 @@ class Room
             'description' => $this->description,
             'family_id' => $this->familyId,
             'date_created' => $this->dateCreated,
-            'code' => $this->code
+            'code' => $this->code,
+            'image' => $this->image
         ];
     }
 }

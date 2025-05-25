@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect, useContext } from 'react';
 import styles from './Dashboard.module.css';
+import { Avatar } from '@mui/material';
 import SessionContext from '../session/SessionContext';
 
 const Dashboard = () => {
@@ -40,7 +41,8 @@ const Dashboard = () => {
         name: room.room_name,
         status: room.request_status,
         joinedAt: room.joined_at,
-        code: room.room_code
+        code: room.room_code,
+        image: room.image
       }));
 
       setUserRooms(rooms);
@@ -184,6 +186,11 @@ const Dashboard = () => {
             {userRooms.map(room => (
               <li key={room.id} className={styles.roomItem}>
                 <div className={styles.roomInfo}>
+                  {room.image ? ( <Avatar 
+                    src={`http://localhost/break-it-api/public${room.image}`} 
+                    alt="Room"
+                    sx={{ width: 56, height: 56, display: 'inline-flex', verticalAlign: 'middle' }}
+                  />) : null}
                   <h3>{room.name}</h3>
                   {room.code && <p className={styles.roomCode}>Code: {room.code}</p>}
                 </div>

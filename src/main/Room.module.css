@@ -109,7 +109,7 @@
 /* Task Sections Styles */
 .taskSections {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 1.5rem;
   margin-top: 2rem;
 }
@@ -119,6 +119,7 @@
   padding: 1.5rem;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  
 }
 
 .taskColumn h2 {
@@ -149,6 +150,99 @@
 .leftContent {
   flex: 1;
   padding-right: 2rem;
+}
+/* Date Controls */
+.dateControls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 15px 0;
+  position: relative;
+}
+
+.dateNavButton {
+  padding: 5px 10px;
+  background-color: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.dateNavButton:hover {
+  background-color: #e0e0e0;
+}
+
+.dateDisplayButton {
+  padding: 8px 16px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  min-width: 150px;
+}
+
+.dateDisplayButton:hover {
+  background-color: #45a049;
+}
+
+.datePickerPopup {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  margin-top: 5px;
+}
+
+.todayButton {
+  padding: 8px 16px;
+  background-color: #2196F3;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.todayButton:hover {
+  background-color: #0b7dda;
+}
+
+/* Additional Task Status Section Styles */
+.statusSection {
+  margin-bottom: 1.5rem;
+  background: white;
+  padding: 1rem;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.statusSection h3 {
+  color: var(--text-medium);
+  margin-top: 0;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 0.5rem;
+  font-size: 1.1rem;
+}
+
+/* Color Indicators for Different Status Types */
+.statusPending {
+  border-left: 4px solid var(--warning);
+}
+
+.statusInProgress {
+  border-left: 4px solid #2196F3; /* Keeping distinct blue for visibility */
+}
+
+.statusCompleted {
+  border-left: 4px solid var(--success);
 }
 
 /* Responsive Adjustments */

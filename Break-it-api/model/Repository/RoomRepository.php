@@ -95,7 +95,7 @@ class RoomRepository
     {
         try {
             $stmt = $this->db->prepare("
-                SELECT * FROM rooms 
+                SELECT * FROM    
                 WHERE family_id = :family_id
                 ORDER BY date_created DESC
             ");
@@ -112,31 +112,44 @@ class RoomRepository
         }
     }
 
-    public function update(Room $room): bool
-    {
-        try {
-            $stmt = $this->db->prepare("
-                UPDATE rooms 
-                SET name = :name, 
-                    description = :description, 
-                    family_id = :family_id,
-                    code = :code
-                WHERE id = :id
-            ");
+   public function update(Room $room): bool
+{
+    try {
+        $fields = [];
+        $params = [':id' => $room->getId()];
 
-            $stmt->execute([
-                ':id' => $room->getId(),
-                ':name' => $room->getName(),
-                ':description' => $room->getDescription(),
-                ':family_id' => $room->getFamilyId(),
-                ':code' => $room->getCode()
-            ]);
-
-            return $stmt->rowCount() > 0;
-        } catch (PDOException $e) {
-            throw new RuntimeException("Failed to update room: " . $e->getMessage());
+        if (!is_null($room->getName())) {
+            $fields[] = 'name = :name';
+            $params[':name'] = $room->getName();
         }
+        if (!is_null($room->getDescription())) {
+            $fields[] = 'description = :description';
+            $params[':description'] = $room->getDescription();
+        }
+        if (!is_null($room->getFamilyId())) {
+            $fields[] = 'family_id = :family_id';
+            $params[':family_id'] = $room->getFamilyId();
+        }
+        if (!is_null($room->getImage())) {
+            $fields[] = 'image = :image';
+            $params[':image'] = $room->getImage();
+        }
+
+        if (empty($fields)) {
+            // Nothing to update
+            return false;
+        }
+
+        $sql = "UPDATE rooms SET " . implode(', ', $fields) . " WHERE id = :id";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+
+        return $stmt->rowCount() > 0;
+    } catch (PDOException $e) {
+            throw new RuntimeException("Failed to update room: " . $e->getMessage());
     }
+}
+
 
     public function delete(int $id): bool 
     {
@@ -196,7 +209,8 @@ class RoomRepository
             $data['description'],
             (int)$data['family_id'],
             $data['date_created'],
-            $data['code']
+            $data['code'],
+            $data['image'] ?? null
         );
     }
 }

@@ -8,7 +8,7 @@ const Messages = ({ roomId }) => {
   const [newMessage, setNewMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const messagesEndRef = useRef(null);
+  const messagesListRef = useRef(null); // NEW: For direct scroll
   const fetchIntervalRef = useRef();
 
   const fetchMessages = async () => {
@@ -27,7 +27,14 @@ const Messages = ({ roomId }) => {
       
       const data = await response.json();
       if (data.success) {
-        setMessages(data);
+        setMessages(prev => {
+          const prevMessages = prev.messages.map(m => m.message.id);
+          const newMessages = data.messages.map(m => m.message.id);
+          const same = prevMessages.length === newMessages.length &&
+                       prevMessages.every((id, idx) => id === newMessages[idx]);
+          if (same) return prev; // No update if identical
+          return data;
+        });
       }
     } catch (err) {
       setError(err.message);
@@ -81,8 +88,11 @@ const Messages = ({ roomId }) => {
     };
   }, [roomId]);
 
+  // Scroll to bottom when number of messages changes
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (messagesListRef.current) {
+      messagesListRef.current.scrollTop = messagesListRef.current.scrollHeight;
+    }
   }, [messages]);
 
   const handleKeyPress = (e) => {
@@ -95,10 +105,10 @@ const Messages = ({ roomId }) => {
   if (!messages.messages) {
     return <div className={styles.loading}>Loading messages...</div>;
   }
+
   return (
     <div className={styles.messagesContainer}>
-      {/* Scrollable messages area with fixed height */}
-      <div className={styles.messagesList}>
+      <div ref={messagesListRef} className={styles.messagesList}>
         {messages.messages.map(({ message }) => (
           <div 
             key={message.id} 
@@ -122,11 +132,8 @@ const Messages = ({ roomId }) => {
             </div>
           </div>
         ))}
-        {/* This empty div will be our scroll target */}
-        <div ref={messagesEndRef} />
       </div>
-  
-      {/* Fixed input container at bottom */}
+
       <div className={styles.messageInputContainer}>
         {error && <div className={styles.error}>{error}</div>}
         <textarea
@@ -153,5 +160,6 @@ const Messages = ({ roomId }) => {
       </div>
     </div>
   );
-}
+};
+
 export default Messages;

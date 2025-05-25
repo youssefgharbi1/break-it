@@ -1,22 +1,26 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import Task from './Task';
-import TaskForm from './TaskForm';
-import styles from './Room.module.css';
 import SessionContext from '../session/SessionContext';
 import Messages from './messages';
 import JoinRequests from './JoinRequests';
+import TaskForm from './TaskForm';
+import RoomHeader from './RoomHeader';
+import DateControls from './DateControls';
+import TaskSections from './TaskSections';
+import styles from './Room.module.css';
 
 const Room = () => {
   const { roomId } = useParams();
   const navigate = useNavigate();
   const { user } = useContext(SessionContext);
+  
   const [room, setRoom] = useState(null);
   const [tasks, setTasks] = useState([]);
   const [familyMembers, setFamilyMembers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [showTaskForm, setShowTaskForm] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(new Date());
 
   // Fetch room data and tasks
   useEffect(() => {
@@ -25,37 +29,28 @@ const Room = () => {
         setIsLoading(true);
         setError('');
 
-        // Verify room membership
         const membershipRes = await fetch(
           `http://localhost/break-it-api/public/Room/?id=${roomId}`,
-          {
-            credentials: 'include',
-            headers: { 'Content-Type': 'application/json' }
-          }
+          { credentials: 'include', headers: { 'Content-Type': 'application/json' } }
         );
-        const membershipData = await membershipRes.json();
         
-        if (!membershipData.success) {
-          throw new Error('You are not a member of this room');
-        }
+        const membershipData = await membershipRes.json();
+        if (!membershipData.success) throw new Error('You are not a member of this room');
 
-        // Fetch room details and tasks in parallel
         const [roomRes, tasksRes] = await Promise.all([
           fetch(`http://localhost/break-it-api/public/Room/?id=${roomId}`, {
             credentials: 'include',
             headers: { 'Content-Type': 'application/json' },
-            method : 'GET'
+            method: 'GET'
           }),
           fetch(`http://localhost/break-it-api/public/Task/?room_id=${roomId}`, {
             credentials: 'include'
           })
         ]);
 
-        if (!roomRes.ok) throw new Error('Failed to fetch room details');
-        if (!tasksRes.ok) throw new Error('Failed to fetch tasks');
+        if (!roomRes.ok || !tasksRes.ok) throw new Error('Failed to fetch data');
 
-        const roomData = await roomRes.json();
-        const tasksData = await tasksRes.json();
+        const [roomData, tasksData] = await Promise.all([roomRes.json(), tasksRes.json()]);
         setRoom(roomData.data);
         setTasks(tasksData.data || []);
         setFamilyMembers(roomData.data.roomMembers || []);
@@ -71,25 +66,55 @@ const Room = () => {
     };
 
     fetchRoomData();
-
   }, [roomId, navigate]);
+  const toBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+    });
+  };
+
+  const handleRoomImageChange = async (file) => {
+    try {
+      const base64Image = await toBase64(file);
+
+      const response = await fetch(`http://localhost/break-it-api/public/Room/?id=${roomId}`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          image: base64Image
+        })
+      });
+
+      if (!response.ok) throw new Error('Failed to update room image');
+
+      const updatedRoom = await response.json();
+      setRoom(prev => ({ ...prev, image: updatedRoom.data.image }));
+    } catch (err) {
+      console.error('Image update error:', err);
+      setError(err.message);
+    }
+  };
+  
 
   // Task CRUD operations
   const handleTaskCreate = async (taskData) => {
     try {
-      const response = await fetch(
-        'http://localhost/break-it-api/public/Task/',
-        {
-          method: 'POST',
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            ...taskData,
-            created_by: user.id,
-            room_id: parseInt(roomId)
-          })
-        }
-      );
+      const response = await fetch('http://localhost/break-it-api/public/Task/', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...taskData,
+          created_by: user.id,
+          room_id: parseInt(roomId)
+        })
+      });
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -107,22 +132,16 @@ const Room = () => {
 
   const handleTaskUpdate = async (taskId, updatedFields) => {
     try {
-      const response = await fetch(
-        `http://localhost/break-it-api/public/Task/${taskId}`,
-        {
-          method: 'PUT',
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(updatedFields)
-        }
-      );
+      const response = await fetch(`http://localhost/break-it-api/public/Task/${taskId}`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedFields)
+      });
 
       if (!response.ok) throw new Error('Failed to update task');
-      
       const updatedTask = await response.json();
-      setTasks(tasks.map(task => 
-        task.id === taskId ? updatedTask.data : task
-      ));
+      setTasks(tasks.map(task => task.id === taskId ? updatedTask.data : task));
     } catch (err) {
       console.error('Task update error:', err);
       setError(err.message);
@@ -131,50 +150,39 @@ const Room = () => {
 
   const handleTaskDelete = async (taskId) => {
     try {
-      const response = await fetch(
-        `http://localhost/break-it-api/public/Task/${taskId}`,
-        {
-          method: 'DELETE',
-          credentials: 'include'
-        }
-      );
+      const response = await fetch(`http://localhost/break-it-api/public/Task/${taskId}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      });
 
       if (!response.ok) throw new Error('Failed to delete task');
-      
       setTasks(tasks.filter(task => task.id !== taskId));
     } catch (err) {
       console.error('Task deletion error:', err);
       setError(err.message);
     }
   };
-  const renderRequestSection = () => {
-    if (user.role !== 'P') return null;
-    return (
-      <JoinRequests roomId={roomId}/>
-    );
 
-  }
-  const renderCreateTaskSection = () => {
+  // Memoized filtered tasks
+  const { myAssignedTasks, tasksAssignedToMe } = useMemo(() => {
+    const myAssigned = tasks.filter(task => task.createdBy === user.id);
+    const assignedToMe = tasks.filter(task => task.assignedTo === user.id);
+    return { myAssignedTasks: myAssigned, tasksAssignedToMe: assignedToMe };
+  }, [tasks, user.id]);
 
-    if (user.role !== 'P') return null;
-    return (
-      <button 
-          onClick={() => setShowTaskForm(!showTaskForm)}
-          className={styles.createButton}
-        >
-          {showTaskForm ? 'Cancel' : 'Create New Task'}
-        </button>
-    );
+  // Date filtering
+  const filterByDate = useMemo(() => (taskList) => {
+    if (!selectedDate) return taskList;
+    const selectedDateString = selectedDate.toISOString().split('T')[0];
+    return taskList.filter(task => {
+      if (!task.dueTime) return false;
+      const taskDatePart = task.dueTime.split(' ')[0];
+      return taskDatePart === selectedDateString;
+    });
+  }, [selectedDate]);
 
-  }
-  const handleReturnHome = () => {
-    navigate('/dashboard');
-  };
-
-  // Filter tasks by status for better organization
-  const pendingTasks = tasks.filter(t => t.status === 'pending');
-  const inProgressTasks = tasks.filter(t => t.status === 'in-progress');
-  const completedTasks = tasks.filter(t => t.status === 'completed');
+  const filteredMyAssignedTasks = filterByDate(myAssignedTasks);
+  const filteredTasksAssignedToMe = filterByDate(tasksAssignedToMe);
 
   if (isLoading) return <div className={styles.loading}>Loading room...</div>;
   if (error) return <div className={styles.error}>{error}</div>;
@@ -182,89 +190,45 @@ const Room = () => {
 
   return (
     <div className={styles.pageLayout}>
-    {renderRequestSection()}
-    <div className={[styles.roomContainer, styles.leftContent].join(' ')}>
-      <header className={styles.roomHeader}>
-        <div className={styles.headerLeft}>
-          <button 
-            onClick={handleReturnHome}
-            className={styles.homeButton}
-            aria-label="Return to dashboard"
-          >
-            ← Home
-          </button>
-          <h1>{room.name}</h1>
-        </div>
-        {(user.role !== 'P') ? null : <p className={styles.roomCode}>Room Code: {room.code}</p>}
-        {renderCreateTaskSection()}
-      </header>
+      {user.role === 'P' && <JoinRequests roomId={roomId} />}
       
-      {showTaskForm && (
-        <TaskForm 
-          familyMembers={familyMembers}
-          onSubmit={handleTaskCreate}
-          onCancel={() => setShowTaskForm(false)}
+      <div className={[styles.roomContainer, styles.leftContent].join(' ')}>
+        <RoomHeader 
+          room={room} 
+          user={user} 
+          onReturnHome={() => navigate('/dashboard')}
+          onCreateTaskClick={() => setShowTaskForm(!showTaskForm)}
+          showTaskForm={showTaskForm}
+          onImageChange={handleRoomImageChange}
         />
+
         
-      )}
-      
+        {showTaskForm && (
+          <TaskForm 
+            familyMembers={familyMembers}
+            onSubmit={handleTaskCreate}
+            onCancel={() => setShowTaskForm(false)}
+          />
+        )}
+        
+        {error && <div className={styles.errorMessage}>{error}</div>}
 
-      {error && <div className={styles.errorMessage}>{error}</div>}
+        <DateControls 
+          selectedDate={selectedDate} 
+          onDateChange={setSelectedDate} 
+        />
 
-      <div className={styles.taskSections}>
-        {/* Pending Tasks */}
-        <div className={styles.taskColumn}>
-          <h2>Pending ({pendingTasks.length})</h2>
-          {pendingTasks.length === 0 ? (
-            <p className={styles.noTasks}>No pending tasks</p>
-          ) : (
-            pendingTasks.map(task => (
-              <Task
-                key={task.id}
-                task={task}
-                onUpdate={handleTaskUpdate}
-                onDelete={handleTaskDelete}
-              />
-            ))
-          )}
-        </div>
-
-        {/* In Progress Tasks */}
-        <div className={styles.taskColumn}>
-          <h2>In Progress ({inProgressTasks.length})</h2>
-          {inProgressTasks.length === 0 ? (
-            <p className={styles.noTasks}>No tasks in progress</p>
-          ) : (
-            inProgressTasks.map(task => (
-              <Task
-                key={task.id}
-                task={task}
-                onUpdate={handleTaskUpdate}
-                onDelete={handleTaskDelete}
-              />
-            ))
-          )}
-        </div>
-
-        {/* Completed Tasks */}
-        <div className={styles.taskColumn}>
-          <h2>Completed ({completedTasks.length})</h2>
-          {completedTasks.length === 0 ? (
-            <p className={styles.noTasks}>No completed tasks</p>
-          ) : (
-            completedTasks.map(task => (
-              <Task
-                key={task.id}
-                task={task}
-                onUpdate={handleTaskUpdate}
-                onDelete={handleTaskDelete}
-              />
-            ))
-          )}
-        </div>
+        <TaskSections 
+          user={user}
+          myAssignedTasks={filteredMyAssignedTasks}
+          tasksAssignedToMe={filteredTasksAssignedToMe}
+          onTaskUpdate={handleTaskUpdate}
+          onTaskDelete={handleTaskDelete}
+          selectedDate={selectedDate}
+        />
       </div>
-    </div>
-    <Messages roomId={roomId}/>
+      
+      <Messages roomId={roomId} />
     </div>
   );
 };
