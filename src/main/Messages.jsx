@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useContext } from 'react';
 import styles from './Messages.module.css';
+import { motion } from 'framer-motion';
 import SessionContext from '../session/SessionContext';
 
 const Messages = ({ roomId }) => {
@@ -10,6 +11,7 @@ const Messages = ({ roomId }) => {
   const [error, setError] = useState('');
   const messagesListRef = useRef(null); // NEW: For direct scroll
   const fetchIntervalRef = useRef();
+  const [isHidden, setIsHidden] = useState(true);
 
   const fetchMessages = async () => {
     try {
@@ -106,60 +108,79 @@ const Messages = ({ roomId }) => {
     return <div className={styles.loading}>Loading messages...</div>;
   }
 
-  return (
-    <div className={styles.messagesContainer}>
-      <div ref={messagesListRef} className={styles.messagesList}>
-        {messages.messages.map(({ message }) => (
-          <div 
-            key={message.id} 
-            className={`${styles.message} ${
-              message.user_id === user?.id ? styles.sent : styles.received
-            }`}
-          >
-            <div className={styles.messageHeader}>
-              <span className={styles.sender}>
-                {message.user_id === user?.id ? 'You' : message.username}
-              </span>
-              <span className={styles.timestamp}>
-                {new Date(message.created_at).toLocaleTimeString([], { 
-                  hour: '2-digit', 
-                  minute: '2-digit' 
-                })}
-              </span>
-            </div>
-            <div className={styles.messageContent}>
-              {message.content}
-            </div>
-          </div>
-        ))}
-      </div>
 
-      <div className={styles.messageInputContainer}>
-        {error && <div className={styles.error}>{error}</div>}
-        <textarea
-          value={newMessage}
-          onChange={(e) => setNewMessage(e.target.value)}
-          onKeyDown={handleKeyPress}
-          placeholder="Type your message here..."
-          disabled={isLoading}
-          className={styles.messageInput}
-          rows={3}
-        />
-        <button
-          onClick={sendMessage}
-          disabled={!newMessage.trim() || isLoading}
-          className={styles.sendButton}
-          aria-label="Send message"
-        >
-          {isLoading ? (
-            <span className={styles.spinner} aria-hidden="true" />
-          ) : (
-            'Send'
-          )}
-        </button>
-      </div>
+
+
+  return (
+    <div>
+      <button 
+        onClick={() => setIsHidden(prev => !prev)} 
+        className={styles.toggleButton}
+      >
+        {isHidden ? 'Show Chat' : 'Hide Chat'}
+      </button>
+      {/* Animated Chat Box */}
+      <motion.div
+        className={styles.messagesContainer}
+        animate={{ x: isHidden ? '100%' : '0%' }}
+        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+      >
+        {/* Toggle Button */}
+        
+        <div ref={messagesListRef} className={styles.messagesList}>
+          {messages.messages.map(({ message }) => (
+            <div 
+              key={message.id} 
+              className={`${styles.message} ${
+                message.user_id === user?.id ? styles.sent : styles.received
+              }`}
+            >
+              <div className={styles.messageHeader}>
+                <span className={styles.sender}>
+                  {message.user_id === user?.id ? 'You' : message.username}
+                </span>
+                <span className={styles.timestamp}>
+                  {new Date(message.created_at).toLocaleTimeString([], { 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                  })}
+                </span>
+              </div>
+              <div className={styles.messageContent}>
+                {message.content}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className={styles.messageInputContainer}>
+          {error && <div className={styles.error}>{error}</div>}
+          <textarea
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            onKeyDown={handleKeyPress}
+            placeholder="Type your message here..."
+            disabled={isLoading}
+            className={styles.messageInput}
+            rows={3}
+          />
+          <button
+            onClick={sendMessage}
+            disabled={!newMessage.trim() || isLoading}
+            className={styles.sendButton}
+            aria-label="Send message"
+          >
+            {isLoading ? (
+              <span className={styles.spinner} aria-hidden="true" />
+            ) : (
+              'Send'
+            )}
+          </button>
+        </div>
+      </motion.div>
     </div>
   );
 };
 
 export default Messages;
+

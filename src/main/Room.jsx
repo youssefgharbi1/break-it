@@ -227,8 +227,8 @@ const Room = () => {
           selectedDate={selectedDate}
         />
       </div>
-      
       <Messages roomId={roomId} />
+
     </div>
   );
 };

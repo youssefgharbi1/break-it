@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import styles from './JoinRequests.module.css';
 
@@ -7,17 +7,18 @@ const JoinRequests = ({ roomId }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [isVisible, setIsVisible] = useState(false);
-  const [isManuallyHidden, setIsManuallyHidden] = useState(false);
-  const [autoHideTimer, setAutoHideTimer] = useState(null);
+  const [isManuallyHidden, setIsManuallyHidden] = useState(true);
+  const autoHideTimerRef = useRef(null);
 
   // Reset the 6-second auto-hide timer
   const resetAutoHideTimer = () => {
-    clearTimeout(autoHideTimer);
+    clearTimeout(autoHideTimerRef.current);
     if (requests.length > 0 && !isManuallyHidden) {
-      setAutoHideTimer(setTimeout(() => setIsVisible(false), 6000));
+      autoHideTimerRef.current = setTimeout(() => {
+        setIsVisible(false);
+      }, 6000);
     }
   };
-
   const fetchJoinRequests = async () => {
     try {
       const response = await fetch(
@@ -28,7 +29,16 @@ const JoinRequests = ({ roomId }) => {
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       
       const data = await response.json();
-      setRequests(data.data || []);
+      console.log(data)
+      console.log(requests)
+      setRequests(prev => {
+          const prevRequests = prev.map(r => r.member_id);
+          const newRequests = data.data.map(r => r.member_id);
+          console.log(newRequests + " " + prevRequests)
+          const same = prevRequests.length === newRequests.length &&
+                       prevRequests.every((id, idx) => id === newRequests[idx]);
+          if (same) return prev; // No update if identical
+          return data.data;});
       
       // Only make visible if there are requests and not manually hidden
       if (data.data?.length > 0 && !isManuallyHidden) {
@@ -73,7 +83,7 @@ const JoinRequests = ({ roomId }) => {
     } else {
       setIsManuallyHidden(true);
       setIsVisible(false);
-      clearTimeout(autoHideTimer);
+      clearTimeout(autoHideTimerRef.current);
     }
   };
 
@@ -82,7 +92,7 @@ const JoinRequests = ({ roomId }) => {
     const interval = setInterval(fetchJoinRequests, 10000);
     return () => {
       clearInterval(interval);
-      clearTimeout(autoHideTimer);
+      clearTimeout(autoHideTimerRef.current);
     };
   }, [roomId]);
 
@@ -115,7 +125,7 @@ const JoinRequests = ({ roomId }) => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.3 }}
-            onHoverStart={() => clearTimeout(autoHideTimer)}
+            onHoverStart={() => clearTimeout(autoHideTimerRef.current)}
             onHoverEnd={resetAutoHideTimer}
           >
             <div className={styles.requestsContainer}>

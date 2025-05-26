@@ -70,19 +70,73 @@ const RoomHeader = ({ room, user, onReturnHome, onCreateTaskClick, showTaskForm,
         </>
       )}
 
-      <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
-        <DialogTitle>Change Room Image</DialogTitle>
+      <Dialog 
+        open={openDialog} 
+        onClose={() => setOpenDialog(false)}
+        PaperProps={{
+          sx: {
+            backgroundColor: 'var(--bg-light)',
+            color: 'var(--text-dark)',
+            borderRadius: '12px',
+            padding: '1rem',
+          }
+        }}
+      >
+        <DialogTitle 
+          sx={{ 
+            color: 'var(--primary-dark)', 
+            fontWeight: 'bold', 
+            borderBottom: '1px solid var(--primary-light)' 
+          }}
+        >
+          Change Room Image
+        </DialogTitle>
+
         <input 
           type="file" 
           accept="image/*" 
           onChange={handleFileChange} 
-          style={{ margin: '1rem' }}
+          className="input-theme"
         />
-        <DialogActions>
-          <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
-          <Button onClick={handleSaveImage} disabled={!selectedFile}>Save</Button>
+
+        <DialogActions 
+          sx={{ 
+            justifyContent: 'space-between', 
+            padding: '1rem' 
+          }}
+        >
+          <Button 
+            onClick={() => setOpenDialog(false)}
+            sx={{
+              backgroundColor: 'var(--secondary)',
+              color: 'var(--text-dark)',
+              '&:hover': {
+                backgroundColor: 'var(--secondary-light)',
+              }
+            }}
+          >
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleSaveImage} 
+            disabled={!selectedFile}
+            sx={{
+              backgroundColor: 'var(--primary)',
+              color: 'var(--text-light)',
+              '&:hover': {
+                backgroundColor: 'var(--primary-dark)',
+              },
+              '&.Mui-disabled': {
+                backgroundColor: 'var(--primary-light)',
+                color: 'var(--text-medium)',
+              }
+            }}
+          >
+            Save
+          </Button>
         </DialogActions>
       </Dialog>
+
     </header>
   );
 };

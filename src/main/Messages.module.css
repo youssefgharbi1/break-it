@@ -1,16 +1,22 @@
 .messagesContainer {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    overflow: hidden;
-    overflow-y: auto;
-    max-width: 35%;
-    min-width: 25%;
-    position: relative;
-  }
-  
+  display: flex;
+  flex-direction: column;
+  height: 85vh; /* adjust as needed */
+  width: 40%;
+  min-width: 300px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+  overflow-y: auto;
+  position: fixed;
+  top: 8vh;
+  right: 0vw;
+
+  background-color: var(--bg-light);
+  transition: transform 0.3s ease;
+  z-index: 1000;
+}
+
   .messagesList {
     flex: 1;
     padding: 16px;
@@ -105,7 +111,22 @@
     background-color: #cccccc;
     cursor: not-allowed;
   }
-  
+.toggleButton {
+  position: fixed;
+  bottom: 1rem;      /* Anchors it to the bottom */
+  right: 0px;       /* Adjust this to poke it out from a container if needed */
+  background-color: var(--secondary);
+  color: var(--text-dark);
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px 0 0 8px;
+  cursor: pointer;
+  z-index: 1;
+}
+
+  .toggleButton:hover {
+    background-color: var(--secondary-light);
+  }
   .error {
     color: #f44336;
     padding: 8px;
