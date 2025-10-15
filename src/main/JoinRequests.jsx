@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import styles from './JoinRequests.module.css';
 
 const JoinRequests = ({ roomId }) => {
+  const apiUrl = import.meta.env.VITE_API_URL;
   const [requests, setRequests] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -22,19 +23,16 @@ const JoinRequests = ({ roomId }) => {
   const fetchJoinRequests = async () => {
     try {
       const response = await fetch(
-        `http://localhost/break-it-api/public/RoomMembers/?room_id=${roomId}&action=request`,
+        `${apiUrl}/break-it-api/public/RoomMembers/?room_id=${roomId}&action=request`,
         { credentials: 'include', headers: { 'Accept': 'application/json' } }
       );
 
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       
       const data = await response.json();
-      console.log(data)
-      console.log(requests)
       setRequests(prev => {
           const prevRequests = prev.map(r => r.member_id);
           const newRequests = data.data.map(r => r.member_id);
-          console.log(newRequests + " " + prevRequests)
           const same = prevRequests.length === newRequests.length &&
                        prevRequests.every((id, idx) => id === newRequests[idx]);
           if (same) return prev; // No update if identical
@@ -55,7 +53,7 @@ const JoinRequests = ({ roomId }) => {
   const handleRequestResponse = async (action, id) => {
     try {
       const response = await fetch(
-        `http://localhost/break-it-api/public/RoomMembers/`,
+        `${apiUrl}/break-it-api/public/RoomMembers/`,
         {
           method: 'PATCH',
           credentials: 'include',

@@ -17,10 +17,11 @@ const SessionProvider = ({ children }) => {
     });
     
   };
+  const apiUrl = import.meta.env.VITE_API_URL;
 
   const logout = async () => {
     try {
-      await fetch('http://localhost/break-it-api/public/authentification/logout.php/', {
+      await fetch(`${apiUrl}/break-it-api/public/authentification/logout.php/`, {
         method: 'POST',
         credentials: 'include'
       });
@@ -42,7 +43,7 @@ const SessionProvider = ({ children }) => {
     setSession(prev => ({ ...prev, loading: true })); 
     try {
       
-      const response = await fetch('http://localhost/break-it-api/public/session.php', {
+      const response = await fetch(`${apiUrl}/break-it-api/public/session.php`, {
         credentials: 'include',
       });
       

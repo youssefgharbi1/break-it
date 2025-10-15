@@ -11,6 +11,7 @@ const CreateRoom = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const apiUrl = import.meta.env.VITE_API_URL;
   
   // Get session data from context
   const { user } = useContext(SessionContext);
@@ -26,7 +27,7 @@ const CreateRoom = () => {
     setError('');
 
     try {
-      const response = await fetch('http://localhost/break-it-api/public/room/', {
+      const response = await fetch(`${apiUrl}/break-it-api/public/room/`, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },

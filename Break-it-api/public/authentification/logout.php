@@ -1,6 +1,6 @@
 <?php
+require_once __DIR__.'/../../conf/conf.php';
 header("Content-Type: application/json");
-header("Access-Control-Allow-Origin: http://localhost:5173");
 header("Access-Control-Allow-Credentials: true");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
 ini_set('session.cookie_samesite', 'None');

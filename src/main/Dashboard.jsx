@@ -5,6 +5,7 @@ import { Avatar } from '@mui/material';
 import SessionContext from '../session/SessionContext';
 
 const Dashboard = () => {
+  const apiUrl = import.meta.env.VITE_API_URL;
   const navigate = useNavigate();
   const { user } = useContext(SessionContext);
   const [roomCode, setRoomCode] = useState('');
@@ -19,7 +20,7 @@ const Dashboard = () => {
     setError('');
     
     try {
-      const response = await fetch(`http://localhost/break-it-api/public/room/`, {
+      const response = await fetch(`${apiUrl}/break-it-api/public/room/`, {
         credentials: 'include',
         headers: { 'Accept': 'application/json' }
       });
@@ -61,7 +62,7 @@ const Dashboard = () => {
 
   const handleLogout = async () => {
     try {
-      const response = await fetch('http://localhost/break-it-api/public/authentification/logout.php', {
+      const response = await fetch(`${apiUrl}/break-it-api/public/authentification/logout.php`, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' }
@@ -86,7 +87,7 @@ const Dashboard = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost/break-it-api/public/roomMembers/', {
+      const response = await fetch(`${apiUrl}/break-it-api/public/roomMembers/`, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -187,7 +188,7 @@ const Dashboard = () => {
               <li key={room.id} className={styles.roomItem}>
                 <div className={styles.roomInfo}>
                   {room.image ? ( <Avatar 
-                    src={`http://localhost/break-it-api/public${room.image}`} 
+                    src={`${apiUrl}/break-it-api/public${room.image}`} 
                     alt="Room"
                     sx={{ width: 56, height: 56, display: 'inline-flex', verticalAlign: 'middle' }}
                   />) : null}

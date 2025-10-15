@@ -1,19 +1,36 @@
 import { useState } from 'react';
-import styles from './TaskForm.module.css';
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Select,
+  MenuItem,
+  InputLabel,
+  FormControl,
+  Button,
+  Grid,
+  Typography
+} from '@mui/material';
+import { LocalizationProvider, DateTimePicker } from '@mui/x-date-pickers';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import styles from './TaskForm.module.css'
 
-const TaskForm = ({ familyMembers, onSubmit, onCancel }) => {
+const TaskForm = ({ familyMembers, onSubmit, onCancel, open }) => {
   const [taskData, setTaskData] = useState({
     title: '',
     description: '',
     status: 'pending',
     priority: 'medium',
     category: '',
-    assigned_to: '',
-    start_time: '',
-    due_time: '',
-    estimated_duration: '',
+    assigned_to: null,
+    start_time: null,
+    due_time: null,
+    estimated_duration: null,
     recurring_pattern: '',
-    points_value: 1
+    points_value: 0,
+    room_id: null
   });
 
   const handleChange = (e) => {
@@ -21,171 +38,266 @@ const TaskForm = ({ familyMembers, onSubmit, onCancel }) => {
     setTaskData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSubmit(taskData);
+  const handleDateTimeChange = (name, value) => {
+    setTaskData(prev => ({ ...prev, [name]: value }));
   };
 
-  return (
-    <div className={styles.taskFormContainer}>
-      <h2>Create New Task</h2>
-      <form onSubmit={handleSubmit} className={styles.taskForm}>
-        <div className={styles.formGroup}>
-          <label>Title *</label>
-          <input
-            type="text"
-            name="title"
-            value={taskData.title}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        
-        <div className={styles.formGroup}>
-          <label>Description</label>
-          <textarea
-            name="description"
-            value={taskData.description}
-            onChange={handleChange}
-          />
-        </div>
-        
-        <div className={styles.formRow}>
-          <div className={styles.formGroup}>
-            <label>Status</label>
-            <select
-              name="status"
-              value={taskData.status}
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSubmit({
+      ...taskData,
+      start_time: taskData.start_time?.toISOString(),
+      due_time: taskData.due_time?.toISOString()
+    });
+  };
+
+  const categories = ['Household', 'Work', 'Personal', 'Family'];
+  const statusOptions = ['pending', 'in_progress', 'completed', 'approved', 'rejected'];
+  const priorityOptions = ['low', 'medium', 'high'];
+  const recurringOptions = ['', 'daily', 'weekly', 'monthly'];
+
+
+return (
+  <Dialog open={open} onClose={onCancel} maxWidth="md" fullWidth className={styles.dialogContainer}>
+    <DialogTitle className={styles.dialogTitle}>
+      <Typography variant="h5" component="div">
+        Assign New Task
+      </Typography>
+    </DialogTitle>
+    
+    <form onSubmit={handleSubmit}>
+      <DialogContent dividers className={styles.dialogContent}>
+        <Grid container spacing={2} className={styles.formGrid}>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Title "
+              name="title"
+              value={taskData.title}
               onChange={handleChange}
-            >
-              <option value="pending">Pending</option>
-              <option value="in-progress">In Progress</option>
-              <option value="completed">Completed</option>
-            </select>
-          </div>
+              required
+              margin="normal"
+              className={styles.inputField}
+              InputProps={{
+                classes: {
+                  root: styles.inputField,
+                }
+              }}
+            />
+          </Grid>
           
-          <div className={styles.formGroup}>
-            <label>Priority</label>
-            <select
-              name="priority"
-              value={taskData.priority}
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Description"
+              name="description"
+              value={taskData.description}
               onChange={handleChange}
-            >
-              <option value="low">Low</option>
-              <option value="medium">Medium</option>
-              <option value="high">High</option>
-            </select>
-          </div>
-        </div>
-        
-        <div className={styles.formGroup}>
-          <label>Category</label>
-          <input
-            type="text"
-            name="category"
-            value={taskData.category}
-            onChange={handleChange}
-            list="categories"
-          />
-          <datalist id="categories">
-            <option value="Household" />
-            <option value="Work" />
-            <option value="Personal" />
-            <option value="Family" />
-          </datalist>
-        </div>
-        
-        <div className={styles.formRow}>
-          <div className={styles.formGroup}>
-            <label>Assigned To</label>
-            <select
-              name="assigned_to"
-              value={taskData.assigned_to}
-              onChange={handleChange}
-            >
-              <option value="">Select member</option>
-              {familyMembers.map(member => (
-                <option key={member.id} value={member.id}>
-                  {member.name}
-                </option>
-              ))}
-            </select>
-          </div>
+              multiline
+              rows={3}
+              margin="normal"
+              className={styles.textareaField}
+            />
+          </Grid>
           
-          <div className={styles.formGroup}>
-            <label>Points Value</label>
-            <input
-              type="number"
+          <Grid item xs={6}>
+            <FormControl fullWidth margin="normal" className={styles.formControl}>
+              <InputLabel className={styles.formLabel}>Status</InputLabel>
+              <Select
+                name="status"
+                value={taskData.status}
+                onChange={handleChange}
+                label="Status"
+                className={styles.selectField}
+              >
+                {statusOptions.map(status => (
+                  <MenuItem key={status} value={status}>
+                    {status.replace('_', ' ')}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+          
+          <Grid item xs={6}>
+            <FormControl fullWidth margin="normal" className={styles.formControl}>
+              <InputLabel className={styles.formLabel}>Priority</InputLabel>
+              <Select
+                name="priority"
+                value={taskData.priority}
+                onChange={handleChange}
+                label="Priority"
+                className={styles.selectField}
+              >
+                {priorityOptions.map(priority => (
+                  <MenuItem key={priority} value={priority}>
+                    {priority}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+          
+          <Grid item xs={12}>
+            <FormControl fullWidth margin="normal" className={styles.formControl}>
+              <InputLabel className={styles.formLabel}>Category</InputLabel>
+              <Select
+                name="category"
+                value={taskData.category}
+                onChange={handleChange}
+                label="Category"
+                className={styles.selectField}
+              >
+                {categories.map(category => (
+                  <MenuItem key={category} value={category}>
+                    {category}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+          
+          <Grid item xs={6}>
+            <FormControl fullWidth margin="normal" className={styles.formControl}>
+              <InputLabel className={styles.formLabel}>Assigned To</InputLabel>
+              <Select
+                name="assigned_to"
+                value={taskData.assigned_to || ''}
+                onChange={handleChange}
+                label="Assigned To"
+                className={styles.selectField}
+              >
+                <MenuItem value="">Select member</MenuItem>
+                {familyMembers.map(member => (
+                  <MenuItem key={member.id} value={member.id}>
+                    {member.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+          
+          <Grid item xs={6}>
+            <TextField
+              fullWidth
+              label="Points Value"
               name="points_value"
+              type="number"
               value={taskData.points_value}
               onChange={handleChange}
-              min="1"
+              margin="normal"
+              inputProps={{ min: 0 }}
+              className={styles.inputField}
             />
-          </div>
-        </div>
-        
-        <div className={styles.formRow}>
-          <div className={styles.formGroup}>
-            <label>Start Time</label>
-            <input
-              type="datetime-local"
-              name="start_time"
-              value={taskData.start_time}
-              onChange={handleChange}
-            />
-          </div>
+          </Grid>
           
-          <div className={styles.formGroup}>
-            <label>Due Time</label>
-            <input
-              type="datetime-local"
-              name="due_time"
-              value={taskData.due_time}
+          <Grid item xs={6}>
+            <FormControl fullWidth margin="normal" className={styles.formControl}>
+              <LocalizationProvider dateAdapter={AdapterDateFns}>
+                <DateTimePicker
+                  label="Start Time"
+                  value={taskData.start_time}
+                  onChange={(value) => handleDateTimeChange('start_time', value)}
+                  renderInput={(params) => (
+                    <TextField 
+                      {...params} 
+                      fullWidth 
+                      margin="normal" 
+                      className={styles.dateTimePicker}
+                    />
+                  )}
+                />
+              </LocalizationProvider>
+            </FormControl>
+          </Grid>
+          
+          <Grid item xs={6}>
+            <FormControl fullWidth margin="normal" className={styles.formControl}>
+              <LocalizationProvider dateAdapter={AdapterDateFns}>
+                <DateTimePicker
+                  label="Due Time"
+                  value={taskData.due_time}
+                  onChange={(value) => handleDateTimeChange('due_time', value)}
+                  renderInput={(params) => (
+                    <TextField 
+                      {...params} 
+                      fullWidth 
+                      margin="normal" 
+                      className={styles.dateTimePicker}
+                    />
+                  )}
+                />
+              </LocalizationProvider>
+            </FormControl>
+          </Grid>
+          
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Estimated Duration (minutes)"
+              name="estimated_duration"
+              type="number"
+              value={taskData.estimated_duration || ''}
               onChange={handleChange}
+              margin="normal"
+              inputProps={{ min: 1 }}
+              className={styles.inputField}
             />
-          </div>
-        </div>
-        
-        <div className={styles.formGroup}>
-          <label>Estimated Duration (minutes)</label>
-          <input
-            type="number"
-            name="estimated_duration"
-            value={taskData.estimated_duration}
-            onChange={handleChange}
-            min="1"
-          />
-        </div>
-        
-        <div className={styles.formGroup}>
-          <label>Recurring Pattern</label>
-          <select
-            name="recurring_pattern"
-            value={taskData.recurring_pattern}
-            onChange={handleChange}
-          >
-            <option value="">None</option>
-            <option value="daily">Daily</option>
-            <option value="weekly">Weekly</option>
-            <option value="monthly">Monthly</option>
-          </select>
-        </div>
-        
-        <div className={styles.formActions}>
-          <button type="submit" className={styles.submitButton}>
-            Create Task
-          </button>
-          <button 
-            type="button" 
-            onClick={onCancel}
-            className={styles.cancelButton}
-          >
-            Cancel
-          </button>
-        </div>
-      </form>
-    </div>
-  );
-};
+          </Grid>
+          
+          <Grid item xs={12}>
+            <FormControl fullWidth margin="normal" className={styles.formControl}>
+              <InputLabel className={styles.formLabel}>Recurring Pattern</InputLabel>
+              <Select
+                name="recurring_pattern"
+                value={taskData.recurring_pattern}
+                onChange={handleChange}
+                label="Recurring Pattern"
+                className={styles.selectField}
+              >
+                {recurringOptions.map(pattern => (
+                  <MenuItem key={pattern || 'none'} value={pattern}>
+                    {pattern || 'None'}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
 
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Completion Notes"
+              name="completion_notes"
+              value={taskData.completion_notes || ''}
+              onChange={handleChange}
+              multiline
+              rows={2}
+              margin="normal"
+              className={styles.textareaField}
+            />
+          </Grid>
+        </Grid>
+      </DialogContent>
+      
+      <DialogActions className={styles.dialogActions}>
+        <Button 
+          onClick={onCancel} 
+          className={styles.cancelButton}
+        >
+          Cancel
+        </Button>
+        <Button 
+          type="submit" 
+          variant="contained" 
+          className={styles.submitButton}
+        >
+          Assign Task
+        </Button>
+      </DialogActions>
+    </form>
+  </Dialog>
+);
+
+}
 export default TaskForm;

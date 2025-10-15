@@ -18,6 +18,7 @@ const RegisterForm = () => {
     repeatPassword: ''
   });
 
+  const apiUrl = import.meta.env.VITE_API_URL;
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -67,7 +68,7 @@ const RegisterForm = () => {
 
     setLoading(true);
     try {
-      fetch('http://localhost/break-it-api/public/authentification/register.php', {
+      fetch(`${apiUrl}/break-it-api/public/authentification/register.php`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json', // Required for JSON data

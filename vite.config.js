@@ -8,4 +8,8 @@ export default defineConfig({
       'react-router-dom': 'react-router-dom',
     },
   },
+  server: {
+    host: '0.0.0.0', // Expose to local network
+    port: 5173, // Optional: set a custom port if needed
+  },
 });

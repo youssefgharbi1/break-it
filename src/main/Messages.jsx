@@ -12,11 +12,12 @@ const Messages = ({ roomId }) => {
   const messagesListRef = useRef(null); // NEW: For direct scroll
   const fetchIntervalRef = useRef();
   const [isHidden, setIsHidden] = useState(true);
+  const apiUrl = import.meta.env.VITE_API_URL;
 
   const fetchMessages = async () => {
     try {
       const response = await fetch(
-        `http://localhost/break-it-api/public/messages/?room_id=${roomId}`,
+        `${apiUrl}/break-it-api/public/messages/?room_id=${roomId}`,
         {
           credentials: 'include',
           headers: { 'Accept': 'application/json' }
@@ -50,7 +51,7 @@ const Messages = ({ roomId }) => {
     try {
       setIsLoading(true);
       const response = await fetch(
-        'http://localhost/break-it-api/public/messages/',
+        `${apiUrl}/break-it-api/public/messages/`,
         {
           method: 'POST',
           credentials: 'include',

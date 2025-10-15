@@ -13,14 +13,14 @@ const Room = () => {
   const { roomId } = useParams();
   const navigate = useNavigate();
   const { user } = useContext(SessionContext);
-  
+  const [openTaskForm, setOpenTaskForm] = useState(false);
   const [room, setRoom] = useState(null);
   const [tasks, setTasks] = useState([]);
   const [familyMembers, setFamilyMembers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
-  const [showTaskForm, setShowTaskForm] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const apiUrl = import.meta.env.VITE_API_URL;
 
   // Fetch room data and tasks
   useEffect(() => {
@@ -30,7 +30,7 @@ const Room = () => {
         setError('');
 
         const membershipRes = await fetch(
-          `http://localhost/break-it-api/public/Room/?id=${roomId}`,
+          `${apiUrl}/break-it-api/public/Room/?id=${roomId}`,
           { credentials: 'include', headers: { 'Content-Type': 'application/json' } }
         );
         
@@ -38,12 +38,12 @@ const Room = () => {
         if (!membershipData.success) throw new Error('You are not a member of this room');
 
         const [roomRes, tasksRes] = await Promise.all([
-          fetch(`http://localhost/break-it-api/public/Room/?id=${roomId}`, {
+          fetch(`${apiUrl}/break-it-api/public/Room/?id=${roomId}`, {
             credentials: 'include',
             headers: { 'Content-Type': 'application/json' },
             method: 'GET'
           }),
-          fetch(`http://localhost/break-it-api/public/Task/?room_id=${roomId}`, {
+          fetch(`${apiUrl}/break-it-api/public/Task/?room_id=${roomId}`, {
             credentials: 'include'
           })
         ]);
@@ -80,7 +80,7 @@ const Room = () => {
     try {
       const base64Image = await toBase64(file);
 
-      const response = await fetch(`http://localhost/break-it-api/public/Room/?id=${roomId}`, {
+      const response = await fetch(`${apiUrl}/break-it-api/public/Room/?id=${roomId}`, {
         method: 'PUT',
         credentials: 'include',
         headers: {
@@ -105,7 +105,7 @@ const Room = () => {
   // Task CRUD operations
   const handleTaskCreate = async (taskData) => {
     try {
-      const response = await fetch('http://localhost/break-it-api/public/Task/', {
+      const response = await fetch(`${apiUrl}/break-it-api/public/Task/`, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -123,7 +123,7 @@ const Room = () => {
 
       const createdTask = await response.json();
       setTasks([...tasks, createdTask.data]);
-      setShowTaskForm(false);
+      setOpenTaskForm(false);
     } catch (err) {
       console.error('Task creation error:', err);
       setError(err.message);
@@ -132,7 +132,7 @@ const Room = () => {
 
   const handleTaskUpdate = async (taskId, updatedFields) => {
     try {
-      const response = await fetch(`http://localhost/break-it-api/public/Task/${taskId}`, {
+      const response = await fetch(`${apiUrl}/break-it-api/public/Task/${taskId}`, {
         method: 'PUT',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -150,7 +150,7 @@ const Room = () => {
 
   const handleTaskDelete = async (taskId) => {
     try {
-      const response = await fetch(`http://localhost/break-it-api/public/Task/${taskId}`, {
+      const response = await fetch(`${apiUrl}/break-it-api/public/Task/${taskId}`, {
         method: 'DELETE',
         credentials: 'include'
       });
@@ -188,6 +188,7 @@ const Room = () => {
   if (error) return <div className={styles.error}>{error}</div>;
   if (!room) return <div className={styles.error}>Room not found</div>;
 
+
   return (
     <div className={styles.pageLayout}>
       {user.role === 'P' && <JoinRequests roomId={roomId} />}
@@ -197,17 +198,18 @@ const Room = () => {
           room={room} 
           user={user} 
           onReturnHome={() => navigate('/dashboard')}
-          onCreateTaskClick={() => setShowTaskForm(!showTaskForm)}
-          showTaskForm={showTaskForm}
+          onCreateTaskClick={() => setOpenTaskForm(!openTaskForm)}
+          openTaskForm={openTaskForm}
           onImageChange={handleRoomImageChange}
         />
 
         
-        {showTaskForm && (
+        {openTaskForm && (
           <TaskForm 
+            open={openTaskForm}
             familyMembers={familyMembers}
             onSubmit={handleTaskCreate}
-            onCancel={() => setShowTaskForm(false)}
+            onCancel={() => setOpenTaskForm(false)}
           />
         )}
         

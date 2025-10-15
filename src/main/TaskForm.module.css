@@ -1,98 +1,135 @@
-.taskFormContainer {
-    background-color: #F8E6CB;
-    padding: 2rem;
-    border-radius: 1rem;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    max-width: 700px;
-    margin: 2rem auto;
+/* Container Styling */
+.dialogContainer {
+  background-color: var(--bg-light);
+  border-radius: 1rem;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Dialog Title */
+.dialogTitle {
+  color: var(--primary);
+  text-align: center;
+  padding: 1.5rem 1.5rem 0;
+  font-weight: 600;
+}
+
+/* Dialog Content */
+.dialogContent {
+  padding: 1.5rem;
+  background-color: var(--bg-light);
+  overflow-y: auto;
+  max-height: 70vh;
+}
+
+/* Grid Gap */
+.formGrid {
+  gap: 1.5rem;
+}
+
+/* Form Control */
+.formControl {
+  margin: 0.75rem 0;
+}
+
+/* Label */
+.formLabel {
+  color: var(--secondary);
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 0.4rem;
+  display: block;
+}
+
+/* Generic Input Styling (TextField, Select, DateTime) */
+.inputField,
+.textareaField,
+.selectField,
+.dateTimePicker {
+  background-color: white;
+  border-radius: 0.5rem;
+}
+
+.inputField .MuiOutlinedInput-root,
+.textareaField .MuiOutlinedInput-root,
+.selectField .MuiOutlinedInput-root,
+.dateTimePicker .MuiOutlinedInput-root {
+  border: 2px solid var(--accent);
+  border-radius: 0.5rem;
+  transition: border-color 0.3s ease;
+  background-color: white;
+}
+
+.inputField .MuiOutlinedInput-root.Mui-focused,
+.textareaField .MuiOutlinedInput-root.Mui-focused,
+.selectField .MuiOutlinedInput-root.Mui-focused,
+.dateTimePicker .MuiOutlinedInput-root.Mui-focused {
+  border-color: var(--secondary);
+}
+
+/* Multiline textarea padding fix */
+.textareaField textarea {
+  padding: 0.75rem;
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* Dialog Actions */
+.dialogActions {
+  padding: 1rem 1.5rem;
+  background-color: var(--bg-light);
+  border-radius: 0 0 1rem 1rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+/* Buttons */
+.submitButton {
+  background-color: var(--secondary);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  text-transform: none;
+  transition: background-color 0.3s ease;
+}
+
+.submitButton:hover {
+  background-color: var(--secondary-light);
+}
+
+.cancelButton {
+  background-color: var(--primary);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  text-transform: none;
+  transition: background-color 0.3s ease;
+}
+
+.cancelButton:hover {
+  background-color: var(--primary-dark);
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+  .dialogContent {
+    padding: 1rem;
+    max-height: none;
   }
-  
-  .taskFormContainer h2 {
-    margin-bottom: 1rem;
-    color: #E984A2;
-    font-size: 1.8rem;
-    text-align: center;
-  }
-  
-  .taskForm {
-    display: flex;
-    flex-direction: column;
-    gap: 1.2rem;
-  }
-  
-  .formGroup {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .formGroup label {
-    margin-bottom: 0.4rem;
-    font-weight: bold;
-    color: #B9CC95;
-  }
-  
-  input[type="text"],
-  input[type="number"],
-  input[type="datetime-local"],
-  textarea,
-  select {
-    padding: 0.6rem;
-    border: 2px solid #F8D49B;
-    border-radius: 0.5rem;
-    font-size: 1rem;
-    background-color: #fff;
-  }
-  
-  textarea {
-    resize: vertical;
-    min-height: 80px;
-  }
-  
-  .formRow {
-    display: flex;
+
+  .formGrid {
     gap: 1rem;
-    flex-wrap: wrap;
   }
-  
-  .formRow .formGroup {
-    flex: 1;
-    min-width: 200px;
+
+  .dialogActions {
+    flex-direction: column;
+    align-items: stretch;
   }
-  
-  .formActions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 1rem;
-    margin-top: 1rem;
-  }
-  
-  .submitButton {
-    background-color: #B9CC95;
-    color: white;
-    border: none;
-    padding: 0.75rem 1.5rem;
-    font-size: 1rem;
-    border-radius: 0.5rem;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-  
-  .submitButton:hover {
-    background-color: #a3b57f;
-  }
-  
+
+  .submitButton,
   .cancelButton {
-    background-color: #E984A2;
-    color: white;
-    border: none;
-    padding: 0.75rem 1.5rem;
-    font-size: 1rem;
-    border-radius: 0.5rem;
-    cursor: pointer;
-    transition: background-color 0.3s;
+    width: 100%;
   }
-  
-  .cancelButton:hover {
-    background-color: #d56f8e;
-  }
-  
+}

@@ -4,9 +4,10 @@ import { Avatar, Dialog, DialogTitle, DialogActions, Button } from '@mui/materia
 import ImageIcon from '@mui/icons-material/Image'; // fallback icon
 
 
-const RoomHeader = ({ room, user, onReturnHome, onCreateTaskClick, showTaskForm, onImageChange }) => {
+const RoomHeader = ({ room, user, onReturnHome, onCreateTaskClick, openTaskForm, onImageChange }) => {
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
+  const apiUrl = import.meta.env.VITE_API_URL;
 
   const handleImageClick = () => {
     if (user.role === 'P') {
@@ -42,7 +43,7 @@ const RoomHeader = ({ room, user, onReturnHome, onCreateTaskClick, showTaskForm,
         <h1>{room.name}</h1>
         {room.image ? (
           <Avatar 
-            src={`http://localhost/break-it-api/public${room.image}`} 
+            src={`${apiUrl}/break-it-api/public${room.image}`} 
             alt="Room"
             onClick={handleImageClick}
             sx={{ width: 56, height: 56, marginLeft: 2, cursor: user.role === 'P' ? 'pointer' : 'default' }}
@@ -65,7 +66,7 @@ const RoomHeader = ({ room, user, onReturnHome, onCreateTaskClick, showTaskForm,
             onClick={onCreateTaskClick}
             className={styles.createButton}
           >
-            {showTaskForm ? 'Cancel' : 'Create New Task'}
+            {openTaskForm ? 'Cancel' : 'Assign New Task'}
           </button>
         </>
       )}

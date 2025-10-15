@@ -8,6 +8,7 @@ import { useContext } from 'react';
 import SessionContext from '../session/SessionContext';
 
 const LoginForm = () => {
+  const apiUrl = import.meta.env.VITE_API_URL;
   const context = useContext(SessionContext);
   const { login } = context || {};
   const [formData, setFormData] = useState({
@@ -56,7 +57,7 @@ const LoginForm = () => {
     setIsLoading(true);
     
     try {
-      const response = await fetch('http://localhost/break-it-api/public/authentification/login.php', {
+      const response = await fetch(`${apiUrl}/break-it-api/public/authentification/login.php`, {
         method: 'POST',
         credentials: 'include',
         headers: {

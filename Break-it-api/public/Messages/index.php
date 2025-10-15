@@ -1,5 +1,5 @@
 <?php
-header("Access-Control-Allow-Origin: http://localhost:5173");
+require_once __DIR__.'/../../conf/conf.php';
 header("Content-Type: application/json");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
@@ -46,7 +46,7 @@ try {
                 $botmessage = str_replace("@chat ", "", $input['content']);
                 
                 // Prepare API request
-                $api_key = "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"; // Replace with your actual API key
+                $api_key = "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"; // Replace with your actual API key
                 $url = "https://openrouter.ai/api/v1/chat/completions";
                 $data = [
                     "model" => "deepseek/deepseek-r1:free",
@@ -79,7 +79,7 @@ try {
                     echo json_encode(['error' => 'Chatbot service unavailable']);
                 } else {
                     $decoded = json_decode($response, true);
-                    $ai_reply = $decoded['choices'][0]['message']['content'];
+                    $ai_reply = $decoded['choices'][0]['message']['content'] ?? "failed";
                     $ai_reply = $messageService->sendMessageAI(
                         (int)$input['room_id'],
                         trim($ai_reply)

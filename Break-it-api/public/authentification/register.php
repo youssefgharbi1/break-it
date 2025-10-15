@@ -1,5 +1,5 @@
 <?php   
-header("Access-Control-Allow-Origin: http://localhost:5173");
+require_once __DIR__.'/../../conf/conf.php';
 header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Access-Control-Allow-Credentials: true"); // Required if using sessions/cookies
